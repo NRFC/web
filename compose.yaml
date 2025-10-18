@@ -1,0 +1,37 @@
+services:
+  nrfc-wp-dev-web:
+    image: nrfc-wordpress-apache-n-php
+    build:
+      context: .
+      target: dev
+      args:
+        PHP_VERSION: 8.4
+    volumes:
+      - ./wordpress:/var/www/html
+      - ./docker/development/php.ini:/usr/local/etc/php/conf.d/custom.ini
+    environment:
+      - APACHE_DOCUMENT_ROOT=/var/www/html
+      - WORDPRESS_DB_HOST=nrfc-wp-dev-db
+      - WORDPRESS_DB_USER=${WORDPRESS_DB_USER:-wordpress}
+      - WORDPRESS_DB_PASSWORD=${WORDPRESS_DB_PASSWORD:-wordpress}
+      - WORDPRESS_DB_NAME=${WORDPRESS_DB_NAME:-wordpress}
+    working_dir: /var/www/html
+    depends_on:
+      - nrfc-wp-dev-db
+    user: "${UID:-1000}:${GID:-1000}"
+    ports:
+      - 8015:80
+
+  nrfc-wp-dev-db:
+    image: mariadb:latest
+    container_name: nrfc-wp-dev-db
+    volumes:
+      - ./initdb.d:/docker-entrypoint-initdb.d
+    ports:
+      - 3336:3306
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD:-changemenow}
+      - MYSQL_USER=${WORDPRESS_DB_USER:-wordpress}
+      - MYSQL_PASSWORD=${WORDPRESS_DB_PASSWORD:-wordpress}
+      - MYSQL_DATABASE=${WORDPRESS_DB_NAME:-wordpress}
+    restart: always

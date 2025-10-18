@@ -1,0 +1,53 @@
+/* Add to rugby-player-cards/assets/admin.css */
+.rugby-player-cards .new-card-form {
+    background: #f5f5f5;
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 5px;
+}
+
+.rugby-player-cards .new-card-form label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.rugby-player-cards .new-card-form textarea,
+.rugby-player-cards .new-card-form input[type="date"] {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 15px;
+}
+
+.rugby-player-cards .positions-checklist {
+    margin-bottom: 15px;
+}
+
+.rugby-player-cards .positions-checklist label {
+    display: inline-block;
+    margin-right: 15px;
+}
+
+.wrap h1 {
+    margin-bottom: 20px;
+}
+
+.card {
+    background: #fff;
+    padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    margin-top: 20px;
+}
+
+.card h2 {
+    margin-top: 0;
+}
+
+input[type="file"] {
+    margin: 10px 0;
+    padding: 10px;
+    border: 1px dashed #ccc;
+    display: block;
+    width: 100%;
+    max-width: 400px;
+}
