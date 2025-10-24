@@ -1,0 +1,48 @@
+/* Gold sponsors section */
+.gold-sponsors {
+    margin-bottom: 20px;
+}
+
+.gold-sponsors h3 {
+    font-size: 1.2em;
+    margin-bottom: 15px;
+    color: #333;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 5px;
+}
+
+.sponsors-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+}
+
+.sponsor {
+    text-align: center;
+    width: 150px;
+}
+
+.sponsor a {
+    text-decoration: none;
+    color: #333;
+    display: block;
+}
+
+.sponsor-logo {
+    max-width: 100%;
+    height: auto;
+    max-height: 80px;
+    margin-bottom: 5px;
+    transition: transform 0.3s ease;
+}
+
+.sponsor:hover .sponsor-logo {
+    transform: scale(1.05);
+}
+
+.sponsor-name {
+    display: block;
+    font-size: 0.9em;
+    margin-top: 5px;
+}

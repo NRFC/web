@@ -3,5 +3,8 @@
     "psr-4": {
       "SponsorManagement\\": "src/"
     }
+  },
+  "config": {
+    "autoloader-suffix": "SponsorManagement"
   }
 }

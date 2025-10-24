@@ -793,4 +793,27 @@ function vantage_recommended_plugins() {
 
 	tgmpa( $plugins, $config );
 }
+
+/**
+ * Get gold sponsors for display in the footer
+ *
+ * @return array Array of sponsor posts
+ */
+function nrfc_get_gold_sponsors(): array {
+	$args = array(
+		'post_type' => 'sponsor',
+		'posts_per_page' => -1,
+		'meta_query' => array(
+			array(
+				'key' => '_sponsor_type',
+				'value' => 'gold',
+				'compare' => '='
+			)
+		)
+	);
+
+	$sponsors = new WP_Query($args);
+	return $sponsors->posts;
+}
+
 add_action( 'tgmpa_register', 'vantage_recommended_plugins' );
