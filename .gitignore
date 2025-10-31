@@ -49,3 +49,4 @@
 
 initdb.d
 .env
+*.swp
