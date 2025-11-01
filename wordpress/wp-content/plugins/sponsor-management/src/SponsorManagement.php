@@ -117,7 +117,7 @@ class SponsorManagement
         echo '<ul>';
         echo '<li><code>name</code> (required)</li>';
         echo '<li><code>url</code></li>';
-        echo '<li><code>type</code> (club|gold|silver|bronze)</li>';
+        echo '<li><code>type</code> (club|gold|silver|bronze|associate)</li>';
         echo '<li><code>logo_url</code> (optional, remote image URL to set as featured image)</li>';
         echo '<li><code>status</code> (publish|draft), default publish</li>';
         echo '<li><code>post_id</code> (optional, update the specific sponsor)</li>';
@@ -199,7 +199,7 @@ class SponsorManagement
             }
 
             // Validate type
-            $valid_types = ['club','gold','silver','bronze'];
+            $valid_types = ['club','gold','silver','bronze','associate'];
             if ($data['type'] !== '' && !in_array($data['type'], $valid_types, true)) {
                 $skipped++;
                 $messages[] = "Row {$rowNum}: skipped (invalid type '" . $data['type'] . "').";
