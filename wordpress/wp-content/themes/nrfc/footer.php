@@ -24,7 +24,7 @@
 						$logo_url = $logo;
 					}
 
-					echo '<img src="' . esc_url($logo_url) . '" alt="' . esc_attr($sponsor->post_title) . '" class="sponsor-logo">';
+					echo '<img src="' . esc_url($logo_url) . '" alt="' . esc_attr($sponsor->post_title) . '" class="sponsor-logo-grey">';
 				}
 
 

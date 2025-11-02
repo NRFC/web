@@ -21,6 +21,12 @@ class SponsorManagement
         
         // Add CSV import submenu in admin
         add_action('admin_menu', array($this, 'registerImportSubmenu'));
+        
+        // Register widgets
+        add_action('widgets_init', array($this, 'registerSponsorWidget'));
+        
+        // Register custom image sizes
+        add_action('after_setup_theme', array($this, 'registerImageSizes'));
     }
 
     /**
@@ -53,6 +59,25 @@ class SponsorManagement
             'sponsor-import',
             array($this, 'renderImportPage')
         );
+    }
+
+    /**
+     * Register the widget for displaying sponsors by type
+     */
+    public function registerSponsorWidget(): void
+    {
+        if (class_exists('WP_Widget')) {
+            register_widget(__NAMESPACE__ . '\\SponsorTypeWidget');
+        }
+    }
+
+    /**
+     * Register custom image sizes used by the plugin
+     */
+    public function registerImageSizes(): void
+    {
+        // 150x150, uncropped (maintain aspect ratio within box)
+        add_image_size('sponsor_logo_150', 150, 150, false);
     }
 
     /**
@@ -504,5 +529,146 @@ class SponsorManagement
                 }
                 break;
         }
+    }
+}
+
+
+// Widget to display sponsors by type
+class SponsorTypeWidget extends \WP_Widget
+{
+    public function __construct()
+    {
+        parent::__construct(
+            'sponsor_type_widget',
+            __('Sponsors by Type', 'sponsor-management'),
+            ['description' => __('Displays a list/grid of sponsors filtered by type.', 'sponsor-management')]
+        );
+    }
+
+    public function form($instance)
+    {
+        $title = isset($instance['title']) ? $instance['title'] : '';
+        $type  = isset($instance['type']) ? $instance['type'] : '';
+        $show_titles = isset($instance['show_titles']) ? (bool)$instance['show_titles'] : false;
+        $columns = isset($instance['columns']) ? max(1, min(6, (int)$instance['columns'])) : 4;
+
+        $types = [
+            '' => __('All types', 'sponsor-management'),
+            'club' => __('Club', 'sponsor-management'),
+            'gold' => __('Gold', 'sponsor-management'),
+            'silver' => __('Silver', 'sponsor-management'),
+            'bronze' => __('Bronze', 'sponsor-management'),
+            'associate' => __('Associate', 'sponsor-management'),
+        ];
+
+        $field_id = function($key){ return esc_attr($this->get_field_id($key)); };
+        $field_name = function($key){ return esc_attr($this->get_field_name($key)); };
+        ?>
+        <p>
+            <label for="<?php echo $field_id('title'); ?>"><?php _e('Title:'); ?></label>
+            <input class="widefat" id="<?php echo $field_id('title'); ?>" name="<?php echo $field_name('title'); ?>" type="text" value="<?php echo esc_attr($title); ?>">
+        </p>
+        <p>
+            <label for="<?php echo $field_id('type'); ?>"><?php _e('Sponsor Type:'); ?></label>
+            <select class="widefat" id="<?php echo $field_id('type'); ?>" name="<?php echo $field_name('type'); ?>">
+                <?php foreach ($types as $val => $label): ?>
+                    <option value="<?php echo esc_attr($val); ?>" <?php selected($type, $val); ?>><?php echo esc_html($label); ?></option>
+                <?php endforeach; ?>
+            </select>
+        </p>
+        <p>
+            <label for="<?php echo $field_id('columns'); ?>"><?php _e('Columns (1-6):'); ?></label>
+            <input class="tiny-text" id="<?php echo $field_id('columns'); ?>" name="<?php echo $field_name('columns'); ?>" type="number" min="1" max="6" value="<?php echo esc_attr($columns); ?>">
+        </p>
+        <p>
+            <input class="checkbox" type="checkbox" <?php checked($show_titles); ?> id="<?php echo $field_id('show_titles'); ?>" name="<?php echo $field_name('show_titles'); ?>" />
+            <label for="<?php echo $field_id('show_titles'); ?>"><?php _e('Show sponsor names under logos'); ?></label>
+        </p>
+        <?php
+    }
+
+    public function update($new_instance, $old_instance)
+    {
+        $instance = [];
+        $instance['title'] = sanitize_text_field($new_instance['title'] ?? '');
+        $valid_types = ['club','gold','silver','bronze','associate'];
+        $type = sanitize_text_field($new_instance['type'] ?? '');
+        $instance['type'] = in_array($type, $valid_types, true) ? $type : '';
+        $instance['show_titles'] = !empty($new_instance['show_titles']) ? 1 : 0;
+        $columns = isset($new_instance['columns']) ? (int)$new_instance['columns'] : 4;
+        $instance['columns'] = max(1, min(6, $columns));
+        return $instance;
+    }
+
+    public function widget($args, $instance)
+    {
+        $title = isset($instance['title']) ? $instance['title'] : '';
+        $type  = isset($instance['type']) ? $instance['type'] : '';
+        $show_titles = !empty($instance['show_titles']);
+        $columns = isset($instance['columns']) ? max(1, min(6, (int)$instance['columns'])) : 4;
+
+        echo $args['before_widget'];
+        if (!empty($title)) {
+            echo $args['before_title'] . apply_filters('widget_title', $title) . $args['after_title'];
+        }
+
+        // Build query
+        $meta_query = [];
+        if ($type !== '') {
+            $meta_query[] = [
+                'key' => '_sponsor_type',
+                'value' => $type,
+                'compare' => '=',
+            ];
+        }
+
+        $q = new \WP_Query([
+            'post_type' => 'sponsor',
+            'posts_per_page' => -1,
+            'post_status' => 'publish',
+            'orderby' => 'title',
+            'order' => 'ASC',
+            'meta_query' => $meta_query,
+            'no_found_rows' => true,
+        ]);
+
+        if ($q->have_posts()) {
+            // Centered row that wraps, using flexbox (scoped to widget)
+            echo '<div class="sponsor-widget sponsor-widget-row">';
+            echo '<style>
+            .sponsor-widget.sponsor-widget-row{display:flex;flex-wrap:wrap;justify-content:center;gap:12px;margin:0 auto}
+            .sponsor-widget.sponsor-widget-row .sponsor-item{box-sizing:border-box;padding:8px;text-align:center}
+            .sponsor-widget .sponsor-logo{max-width:150px;max-height:150px;height:auto;width:auto;display:inline-block}
+            </style>';
+            while ($q->have_posts()) {
+                $q->the_post();
+                $post_id = get_the_ID();
+                $name = get_the_title();
+                $url = get_post_meta($post_id, '_sponsor_url', true);
+                $thumb = get_the_post_thumbnail($post_id, 'sponsor_logo_150', ['class' => 'sponsor-logo', 'alt' => esc_attr($name)]);
+                echo '<div class="sponsor-item">';
+                if (!empty($url)) {
+                    echo '<a href="' . esc_url($url) . '" target="_blank" rel="noopener">';
+                }
+                if ($thumb) {
+                    echo $thumb;
+                } else {
+                    echo '<span class="sponsor-name-text">' . esc_html($name) . '</span>';
+                }
+                if (!empty($url)) {
+                    echo '</a>';
+                }
+                if ($show_titles) {
+                    echo '<div class="sponsor-name">' . esc_html($name) . '</div>';
+                }
+                echo '</div>';
+            }
+            echo '</div>';
+            wp_reset_postdata();
+        } else {
+            echo '<p>' . esc_html__('No sponsors found.', 'sponsor-management') . '</p>';
+        }
+
+        echo $args['after_widget'];
     }
 }

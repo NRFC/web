@@ -21,11 +21,19 @@
     max-height: 80px;
     width: auto;
     height: auto;
+    transition: filter 0.3s ease;
+}
+
+.sponsor-logo-grey {
+    max-width: 150px;
+    max-height: 80px;
+    width: auto;
+    height: auto;
     filter: grayscale(100%);
     transition: filter 0.3s ease;
 }
 
-.sponsor-logo:hover {
+.sponsor-logo-grey:hover {
     filter: grayscale(0%);
 }
 
