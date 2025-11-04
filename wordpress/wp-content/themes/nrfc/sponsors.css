@@ -18,7 +18,7 @@
 
 .sponsor-logo {
     max-width: 150px;
-    max-height: 80px;
+    max-height: 150px;
     width: auto;
     height: auto;
     transition: filter 0.3s ease;
@@ -26,7 +26,7 @@
 
 .sponsor-logo-grey {
     max-width: 150px;
-    max-height: 80px;
+    max-height: 50px;
     width: auto;
     height: auto;
     filter: grayscale(100%);

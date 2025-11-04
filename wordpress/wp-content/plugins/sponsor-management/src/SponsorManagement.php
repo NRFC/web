@@ -413,7 +413,8 @@ class SponsorManagement
             'club' => 'Club',
             'gold' => 'Gold',
             'silver' => 'Silver',
-            'bronze' => 'Bronze'
+            'bronze' => 'Bronze',
+            'associate' => 'Associate'
         ];
         
         // URL field
@@ -474,7 +475,7 @@ class SponsorManagement
         
         // Save type
         if (isset($_POST['sponsor_type'])) {
-            $valid_types = ['club', 'gold', 'silver', 'bronze'];
+            $valid_types = ['club', 'gold', 'silver', 'bronze', 'associate'];
             $type = sanitize_text_field($_POST['sponsor_type']);
             
             if (in_array($type, $valid_types)) {
@@ -515,7 +516,8 @@ class SponsorManagement
                     'club' => 'Club',
                     'gold' => 'Gold',
                     'silver' => 'Silver',
-                    'bronze' => 'Bronze'
+                    'bronze' => 'Bronze',
+                    'associate' => 'Associate'
                 ];
                 echo isset($types[$type]) ? esc_html($types[$type]) : '—';
                 break;

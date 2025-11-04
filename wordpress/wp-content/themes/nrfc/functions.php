@@ -27,7 +27,8 @@ function nrfc_get_gold_sponsors(): array {
 add_action( 'after_setup_theme', 'add_custom_image_sizes' );
 
 function add_custom_image_sizes() {
-	add_image_size( 'sponsor-footer', 9999, 85 ); // Unlimited width, 85px height
+	add_image_size( 'sponsor-footer', 9999, 50 );
+	add_image_size( 'sponsor', 9999, 150 );
 }
 
 function enqueue_sponsors_styles() {
