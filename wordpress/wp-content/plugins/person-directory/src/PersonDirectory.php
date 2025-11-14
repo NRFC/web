@@ -29,6 +29,12 @@ class PersonDirectory
 
         // CSV Import admin page
         add_action('admin_menu', [$this, 'register_admin_pages']);
+
+        // Widgets
+        add_action('widgets_init', function () {
+            // Register the People List widget
+            register_widget(PersonListWidget::class);
+        });
     }
 
     /**
@@ -371,5 +377,116 @@ class PersonDirectory
             return $id;
         }
         return $id;
+    }
+}
+
+// Front-end widget to allow pages/sidebars to display a list of selected people (or all if none selected)
+class PersonListWidget extends \WP_Widget
+{
+    public function __construct()
+    {
+        parent::__construct(
+            'person_list_widget',
+            __('People List', 'person-directory'),
+            ['description' => __('Displays a list of selected people from the directory (or all if none selected).', 'person-directory')]
+        );
+    }
+
+    public function form($instance)
+    {
+        $title = isset($instance['title']) ? $instance['title'] : '';
+        $selected = isset($instance['person_ids']) && is_array($instance['person_ids']) ? array_map('intval', $instance['person_ids']) : [];
+
+        $field_id = function ($key) { return esc_attr($this->get_field_id($key)); };
+        $field_name = function ($key) { return esc_attr($this->get_field_name($key)); };
+
+        // Fetch all persons (no paging)
+        $persons = get_posts([
+            'post_type' => PersonDirectory::CPT,
+            'numberposts' => -1,
+            'post_status' => 'publish',
+            'orderby' => 'title',
+            'order' => 'ASC',
+            'suppress_filters' => false,
+        ]);
+        ?>
+        <p>
+            <label for="<?php echo $field_id('title'); ?>"><?php _e('Title:', 'person-directory'); ?></label>
+            <input class="widefat" id="<?php echo $field_id('title'); ?>" name="<?php echo $field_name('title'); ?>" type="text" value="<?php echo esc_attr($title); ?>">
+        </p>
+        <p>
+            <label for="<?php echo $field_id('person_ids'); ?>"><?php _e('Select people to display (leave empty to show all):', 'person-directory'); ?></label>
+            <select multiple size="8" class="widefat" id="<?php echo $field_id('person_ids'); ?>" name="<?php echo $field_name('person_ids'); ?>[]">
+                <?php foreach ($persons as $p): ?>
+                    <option value="<?php echo esc_attr($p->ID); ?>" <?php selected(in_array($p->ID, $selected, true)); ?>>
+                        <?php echo esc_html(get_the_title($p)); ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
+        </p>
+        <?php
+    }
+
+    public function update($new_instance, $old_instance)
+    {
+        $instance = [];
+        $instance['title'] = sanitize_text_field($new_instance['title'] ?? '');
+
+        $ids = isset($new_instance['person_ids']) ? (array)$new_instance['person_ids'] : [];
+        $ids = array_filter(array_map('intval', $ids), function ($v) { return $v > 0; });
+        // De-duplicate
+        $instance['person_ids'] = array_values(array_unique($ids));
+        return $instance;
+    }
+
+    public function widget($args, $instance)
+    {
+        $title = isset($instance['title']) ? $instance['title'] : '';
+        $ids = isset($instance['person_ids']) && is_array($instance['person_ids']) ? array_filter(array_map('intval', $instance['person_ids'])) : [];
+
+        echo $args['before_widget'];
+        if (!empty($title)) {
+            echo $args['before_title'] . apply_filters('widget_title', $title) . $args['after_title'];
+        }
+
+        $query_args = [
+            'post_type' => PersonDirectory::CPT,
+            'posts_per_page' => -1,
+            'post_status' => 'publish',
+            'no_found_rows' => true,
+        ];
+        if (!empty($ids)) {
+            $query_args['post__in'] = $ids;
+            // Keep alphabetical for predictability
+            $query_args['orderby'] = 'title';
+            $query_args['order'] = 'ASC';
+        } else {
+            $query_args['orderby'] = 'title';
+            $query_args['order'] = 'ASC';
+        }
+
+        $q = new \WP_Query($query_args);
+        if ($q->have_posts()) {
+            echo '<div class="person-list-widget">';
+            echo '<ul class="person-list">';
+            while ($q->have_posts()) { $q->the_post();
+                $pid = get_the_ID();
+                echo '<li class="person-list-item">';
+                if (has_post_thumbnail($pid)) {
+                    echo '<span class="person-thumb">' . get_the_post_thumbnail($pid, 'thumbnail', ['alt' => esc_attr(get_the_title($pid))]) . '</span> ';
+                }
+                echo '<a class="person-name" href="' . esc_url(get_permalink($pid)) . '">' . esc_html(get_the_title($pid)) . '</a>';
+                echo '</li>';
+            }
+            echo '</ul>';
+            echo '</div>';
+            // Scoped minimal styles to keep list tidy
+            echo '<style>.person-list{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:0.75rem}.person-list-item{display:flex;align-items:center;gap:0.5rem;margin:0;padding:0}.person-thumb img{border-radius:3px;display:block}</style>';
+            wp_reset_postdata();
+        } else {
+            echo '<p>' . esc_html__('No people found.', 'person-directory') . '</p>';
+        }
+
+        echo $args['after_widget'];
     }
 }
