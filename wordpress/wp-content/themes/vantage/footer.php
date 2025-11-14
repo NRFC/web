@@ -1,12 +1,13 @@
 			<?php do_action( 'vantage_main_bottom' ); ?>
 
-            <?php include get_template_directory() . '/../nrfc/footer.php'; ?>
             		</div><!-- .full-container -->
 	</div><!-- #main .site-main -->
 
 	<?php do_action( 'vantage_after_main_container' ); ?>
 
 	<?php do_action( 'vantage_before_footer' ); ?>
+
+    <?php include get_template_directory() . '/../nrfc/footer.php'; ?>
 
 	<?php get_template_part( 'parts/footer', apply_filters( 'vantage_footer_type', siteorigin_setting( 'layout_footer' ) ) ); ?>
 

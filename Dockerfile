@@ -61,7 +61,9 @@ RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-av
 # Create a non-root user for development
 RUN groupadd -g 1001 www-user && \
     useradd -u 1001 -g www-user -m www-user && \
-    chown -R www-user:www-user /var/www/html
+    chown -R www-user:www-user /var/www/html && \
+    sed -i '/DocumentRoot.*APACHE_DOCUMENT_ROOT}/a\\n\t# Allow .htaccess overrides in document root\n\t<Directory \"\${APACHE_DOCUMENT_ROOT}\">\n\t\tOptions Indexes FollowSymLinks\n\t\tAllowOverride All\n\t\tRequire all granted\n\t</Directory>' /etc/apache2/sites-available/000-default.conf
+
 
 USER www-user
 
