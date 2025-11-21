@@ -51,3 +51,4 @@ initdb.d
 .env
 *.swp
 skunk
+/wp-cli.phar

@@ -8,6 +8,7 @@ services:
         PHP_VERSION: 8.4
     volumes:
       - ./wordpress:/var/www/html
+      - ./wp-cli.phar:/usr/local/bin/wp
       - ./docker/development/php.ini:/usr/local/etc/php/conf.d/custom.ini
     environment:
       - APACHE_DOCUMENT_ROOT=/var/www/html

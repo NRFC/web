@@ -13,6 +13,7 @@ class PersonDirectory
     const META_EMAIL = '_person_email';
     const NONCE_METABOX = 'person_metabox_nonce';
     const NONCE_IMPORT = 'person_import_nonce';
+    const BLOCK_NAME = 'person-directory/people';
 
     public function __construct()
     {
@@ -29,6 +30,12 @@ class PersonDirectory
 
         // CSV Import admin page
         add_action('admin_menu', [$this, 'register_admin_pages']);
+
+        // Gutenberg block (widget)
+        add_action('init', [$this, 'register_people_block']);
+
+        // Classic widget to select people with per-instance labels
+        add_action('widgets_init', [$this, 'register_people_widget']);
     }
 
     /**
@@ -179,6 +186,144 @@ class PersonDirectory
         );
     }
 
+    /**
+     * Register the Gutenberg block that acts as a "widget" to place people on pages with per-instance labels
+     */
+    public function register_people_block()
+    {
+        // Register editor script (no build step; plain ES5-ish using WP globals)
+        $handle = 'person-directory-people-block';
+        $src = plugin_dir_url(dirname(__FILE__)) . 'assets/people-block.js';
+        wp_register_script(
+            $handle,
+            $src,
+            ['wp-blocks','wp-element','wp-components','wp-i18n','wp-data','wp-api-fetch','wp-block-editor'],
+            '1.0.0',
+            true
+        );
+
+        // Localize some defaults
+        wp_localize_script($handle, 'PersonDirectoryBlockData', [
+            'cpt' => self::CPT,
+            'nonce' => wp_create_nonce('wp_rest'),
+        ]);
+
+        // Register block type with server-side render
+        register_block_type('person-directory/people', [
+            'api_version' => 2,
+            'editor_script' => $handle,
+            'render_callback' => [$this, 'render_people_block'],
+            'attributes' => [
+                // Array of { id: number, label: string }
+                'entries' => [
+                    'type' => 'array',
+                    'default' => [],
+                    'items' => [
+                        'type' => 'object',
+                        'properties' => [
+                            'id' => [ 'type' => 'integer' ],
+                            'label' => [ 'type' => 'string' ],
+                        ],
+                    ],
+                ],
+                'className' => [ 'type' => 'string' ],
+            ],
+            'supports' => [
+                'html' => false,
+            ],
+        ]);
+
+        // Optional shortcode for classic editor
+        add_shortcode('person_directory_people', function ($atts) {
+            $atts = shortcode_atts([
+                'ids' => '', // comma-separated IDs
+                'labels' => '', // pipe-separated labels matching order
+            ], $atts, 'person_directory_people');
+            $ids = array_filter(array_map('absint', explode(',', (string)$atts['ids'])));
+            $labels = array_map('sanitize_text_field', explode('|', (string)$atts['labels']));
+            $entries = [];
+            foreach ($ids as $idx => $id) {
+                $entries[] = [ 'id' => $id, 'label' => $labels[$idx] ?? '' ];
+            }
+            return $this->render_people_block(['entries' => $entries], '');
+        });
+    }
+
+    /**
+     * Server-side render callback for the people block
+     */
+    public function render_people_block($attributes, $content)
+    {
+        $attributes = is_array($attributes) ? $attributes : [];
+        $entries = isset($attributes['entries']) && is_array($attributes['entries']) ? $attributes['entries'] : [];
+        if (empty($entries)) {
+            return '';
+        }
+
+        // Preserve order based on entries array
+        $ids = [];
+        $labelsById = [];
+        foreach ($entries as $e) {
+            $id = isset($e['id']) ? intval($e['id']) : 0;
+            if ($id > 0) {
+                $ids[] = $id;
+                $labelsById[$id] = isset($e['label']) ? sanitize_text_field($e['label']) : '';
+            }
+        }
+        if (empty($ids)) {
+            return '';
+        }
+
+        // Fetch posts in one query
+        $posts = get_posts([
+            'post_type' => self::CPT,
+            'post__in' => $ids,
+            'orderby' => 'post__in',
+            'numberposts' => -1,
+            'suppress_filters' => false,
+        ]);
+        if (empty($posts)) {
+            return '';
+        }
+
+        // Build output
+        ob_start();
+        $class = 'person-directory-people';
+        if (!empty($attributes['className'])) {
+            $class .= ' ' . sanitize_html_class($attributes['className']);
+        }
+        echo '<div class="' . esc_attr($class) . '">';
+        echo '<ul class="person-directory-list" style="list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:16px;">';
+        foreach ($posts as $p) {
+            $label = $labelsById[$p->ID] ?? '';
+            $title = get_the_title($p);
+            $permalink = get_permalink($p);
+            $phone = get_post_meta($p->ID, self::META_PHONE, true);
+            $email = get_post_meta($p->ID, self::META_EMAIL, true);
+            $thumb = get_the_post_thumbnail($p->ID, 'thumbnail', ['class' => 'person-photo', 'loading' => 'lazy', 'alt' => esc_attr($title)]);
+            echo '<li class="person-directory-item" style="border:1px solid #ddd;border-radius:8px;padding:12px;box-sizing:border-box;display:flex;gap:10px;align-items:flex-start;min-width:240px;flex:1 1 280px;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.06);">';
+            if ($thumb) {
+                echo '<a href="' . esc_url($permalink) . '" class="person-photo-link">' . $thumb . '</a>';
+            }
+            echo '<div class="person-info">';
+            echo '<div class="person-name"><a href="' . esc_url($permalink) . '">' . esc_html($title) . '</a></div>';
+            if ($label !== '') {
+                echo '<div class="person-label">' . esc_html($label) . '</div>';
+            }
+            if ($phone) {
+                echo '<div class="person-phone">' . esc_html($phone) . '</div>';
+            }
+            if ($email) {
+                echo '<div class="person-email"><a href="mailto:' . esc_attr($email) . '">' . esc_html($email) . '</a></div>';
+            }
+            echo '</div>';
+            echo '</li>';
+        }
+        echo '</ul>';
+        echo '</div>';
+        return ob_get_clean();
+    }
+
     public function render_import_page()
     {
         if (!current_user_can('manage_options')) {
@@ -231,6 +376,13 @@ class PersonDirectory
         echo '<li>' . esc_html__('The "photo" should be a publicly accessible image URL. It will be downloaded and set as the featured image.', 'person-directory') . '</li>';
         echo '</ul>';
         echo '</div>';
+    }
+
+    public function register_people_widget(): void
+    {
+        if (class_exists('WP_Widget')) {
+            register_widget(__NAMESPACE__ . '\\PersonListWidget');
+        }
     }
 
     private function handle_csv_upload()
@@ -371,5 +523,286 @@ class PersonDirectory
             return $id;
         }
         return $id;
+    }
+}
+
+
+// Widget to display selected people with per-instance labels (similar to SponsorTypeWidget)
+class PersonListWidget extends \WP_Widget
+{
+    public function __construct()
+    {
+        parent::__construct(
+            'person_list_widget',
+            __('People (Person Directory)', 'person-directory'),
+            ['description' => __('Display selected people with per-page labels.', 'person-directory')]
+        );
+    }
+
+    public function form($instance)
+    {
+        $title  = isset($instance['title']) ? $instance['title'] : '';
+        $ids    = isset($instance['ids']) ? $instance['ids'] : '';
+        $labels = isset($instance['labels']) ? $instance['labels'] : '';
+
+        $field_id = function($key){ return esc_attr($this->get_field_id($key)); };
+        $field_name = function($key){ return esc_attr($this->get_field_name($key)); };
+
+        // Fetch all persons to render as cards above the form (helper UI)
+        $persons = get_posts([
+            'post_type' => PersonDirectory::CPT,
+            'numberposts' => -1,
+            'orderby' => 'title',
+            'order' => 'ASC',
+            'suppress_filters' => false,
+        ]);
+        ?>
+        <style>
+            .person-directory-admin-cards .person-trump-card{
+                cursor: pointer;
+                transition: border-color .15s ease, box-shadow .15s ease;
+            }
+            .person-directory-admin-cards .person-trump-card.is-selected{
+                border-color: #2271b1 !important; /* WP primary */
+                box-shadow: 0 0 0 2px rgba(34, 113, 177, .15);
+            }
+        </style>
+        <div class="person-directory-admin-cards" data-ids-field="<?php echo $field_id('ids'); ?>" data-labels-field="<?php echo $field_id('labels'); ?>" style="display:flex;flex-wrap:wrap;gap:12px;margin:12px 0;">
+            <?php if (!empty($persons)): ?>
+                <?php foreach ($persons as $p): ?>
+                    <?php
+                        $title_p = get_the_title($p);
+                        $thumb   = get_the_post_thumbnail($p->ID, 'thumbnail', ['style' => 'display:block;width:100%;height:auto;border-radius:6px;']);
+                        $phone   = get_post_meta($p->ID, PersonDirectory::META_PHONE, true);
+                        $email   = get_post_meta($p->ID, PersonDirectory::META_EMAIL, true);
+                    ?>
+                    <div class="person-trump-card" data-person-id="<?php echo (int)$p->ID; ?>" style="width:160px;border:1px solid #ddd;border-radius:8px;padding:8px;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.06);">
+                        <div class="person-trump-photo" style="margin-bottom:6px;">
+                            <?php echo $thumb ? $thumb : '<div style="width:100%;height:120px;background:#f6f7f7;border-radius:6px;"></div>'; ?>
+                        </div>
+	                    <div class="person-trump-title" style="font-weight:600;font-size:13px;line-height:1.3;margin-bottom:4px;">
+		                    <?php echo esc_html($title_p); ?>
+	                    </div>
+	                    <div class="person-trump-role" style="margin-top:6px;">
+		                    <label style="display:block;font-size:11px;color:#555;margin-bottom:2px;">
+			                    <?php echo esc_html__('Role/Position', 'person-directory'); ?>
+		                    </label>
+		                    <input type="text" class="widefat" placeholder="<?php echo esc_attr__('Role/Position', 'person-directory'); ?>" style="width:100%;box-sizing:border-box;font-size:12px;padding:4px 6px;" />
+	                    </div>
+                        <div class="person-trump-meta" style="font-size:12px;color:#555;">
+                            <div><?php echo esc_html__('ID', 'person-directory'); ?>: <code><?php echo (int)$p->ID; ?></code></div>
+                            <?php if (!empty($phone)): ?>
+                                <div><?php echo esc_html($phone); ?></div>
+                            <?php endif; ?>
+                            <?php if (!empty($email)): ?>
+                                <div><?php echo esc_html($email); ?></div>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            <?php else: ?>
+                <p style="margin:12px 0;"><?php echo esc_html__('No persons found yet. Add some People to the directory to see them here.', 'person-directory'); ?></p>
+            <?php endif; ?>
+        </div>
+        <script>
+        (function(){
+            var container = document.currentScript && document.currentScript.previousElementSibling;
+            if(!container || !container.classList.contains('person-directory-admin-cards')){
+                container = document.querySelector('.person-directory-admin-cards');
+            }
+            if(!container) return;
+
+            var idsFieldId = container.getAttribute('data-ids-field');
+            var labelsFieldId = container.getAttribute('data-labels-field');
+            var idsInput = idsFieldId ? document.getElementById(idsFieldId) : null;
+            var labelsInput = labelsFieldId ? document.getElementById(labelsFieldId) : null;
+            if(!idsInput || !labelsInput){
+                document.addEventListener('DOMContentLoaded', function(){
+                    idsInput = idsFieldId ? document.getElementById(idsFieldId) : null;
+                    labelsInput = labelsFieldId ? document.getElementById(labelsFieldId) : null;
+                    if(!idsInput || !labelsInput) return; // give up silently
+                    setup();
+                });
+            } else {
+                setup();
+            }
+
+            function setup(){
+            function parseIds(){
+                var raw = (idsInput.value || '').trim();
+                if(!raw) return [];
+                return raw.split(',').map(function(s){ return s.trim(); }).filter(function(s){ return s !== ''; });
+            }
+            function parseLabels(){
+                var raw = (labelsInput.value || '').trim();
+                if(!raw) return [];
+                return raw.split('|');
+            }
+            function write(idsArr, labelsArr){
+                idsInput.value = idsArr.join(',');
+                labelsInput.value = labelsArr.join('|');
+            }
+            function syncLengths(idsArr, labelsArr){
+                // Ensure labels array matches ids length
+                if(labelsArr.length < idsArr.length){
+                    while(labelsArr.length < idsArr.length) labelsArr.push('');
+                } else if(labelsArr.length > idsArr.length){
+                    labelsArr.length = idsArr.length;
+                }
+            }
+            function indexOfId(idsArr, id){
+                id = String(id);
+                for(var i=0;i<idsArr.length;i++) if(String(idsArr[i]) === id) return i;
+                return -1;
+            }
+            function addId(id, label){
+                var idsArr = parseIds();
+                var labelsArr = parseLabels();
+                var idx = indexOfId(idsArr, id);
+                if(idx === -1){
+                    idsArr.push(String(id));
+                    syncLengths(idsArr, labelsArr);
+                    labelsArr[idsArr.length - 1] = label || '';
+                    write(idsArr, labelsArr);
+                } else {
+                    // Update label at existing index
+                    syncLengths(idsArr, labelsArr);
+                    labelsArr[idx] = label || '';
+                    write(idsArr, labelsArr);
+                }
+            }
+            function removeId(id){
+                var idsArr = parseIds();
+                var labelsArr = parseLabels();
+                var idx = indexOfId(idsArr, id);
+                if(idx !== -1){
+                    idsArr.splice(idx, 1);
+                    labelsArr.splice(idx, 1);
+                    write(idsArr, labelsArr);
+                }
+            }
+            function updateLabel(id, label){
+                var idsArr = parseIds();
+                var labelsArr = parseLabels();
+                var idx = indexOfId(idsArr, id);
+                if(idx !== -1){
+                    syncLengths(idsArr, labelsArr);
+                    labelsArr[idx] = label || '';
+                    write(idsArr, labelsArr);
+                }
+            }
+            function labelForId(id){
+                var idsArr = parseIds();
+                var labelsArr = parseLabels();
+                var idx = indexOfId(idsArr, id);
+                if(idx !== -1){
+                    return labelsArr[idx] || '';
+                }
+                return '';
+            }
+
+            // Toggle selection via clicking the card (excluding interactive controls)
+            container.addEventListener('click', function(e){
+                if (e.target.closest('input, textarea, select, label, a, button')) return;
+                var card = e.target.closest('.person-trump-card');
+                if(!card) return;
+                var id = card.getAttribute('data-person-id');
+                var roleInput = card.querySelector('.person-trump-role input[type="text"]');
+                var roleVal = roleInput ? roleInput.value : '';
+                var willSelect = !card.classList.contains('is-selected');
+                if(willSelect){
+                    card.classList.add('is-selected');
+                    addId(id, roleVal);
+                } else {
+                    card.classList.remove('is-selected');
+                    removeId(id);
+                }
+            });
+
+            // Keep labels in sync when typing inside selected cards
+            container.addEventListener('input', function(e){
+                if(e.target && e.target.matches('.person-trump-role input[type="text"]')){
+                    var card = e.target.closest('.person-trump-card');
+                    if(!card) return;
+                    if(!card.classList.contains('is-selected')) return;
+                    var id = card.getAttribute('data-person-id');
+                    updateLabel(id, e.target.value || '');
+                }
+            });
+
+            // Initialize selection states from existing ids/labels
+            var cards = container.querySelectorAll('.person-trump-card');
+            cards.forEach(function(card){
+                var id = card.getAttribute('data-person-id');
+                var lbl = labelForId(id);
+                if(indexOfId(parseIds(), id) !== -1){
+                    card.classList.add('is-selected');
+                }
+                var input = card.querySelector('.person-trump-role input[type="text"]');
+                if(input && lbl) input.value = lbl;
+            });
+            }
+        })();
+        </script>
+        <p>
+            <label for="<?php echo $field_id('title'); ?>"><?php _e('Title:'); ?></label>
+            <input class="widefat" id="<?php echo $field_id('title'); ?>" name="<?php echo $field_name('title'); ?>" type="text" value="<?php echo esc_attr($title); ?>">
+        </p>
+        <p>
+            <label for="<?php echo $field_id('ids'); ?>"><?php _e('Person IDs (comma-separated):', 'person-directory'); ?></label>
+            <input class="widefat" id="<?php echo $field_id('ids'); ?>" name="<?php echo $field_name('ids'); ?>" type="text" value="<?php echo esc_attr($ids); ?>">
+            <small><?php _e('Example: 12,45,78', 'person-directory'); ?></small>
+        </p>
+        <p>
+            <label for="<?php echo $field_id('labels'); ?>"><?php _e('Labels (pipe-separated, positionally matched):', 'person-directory'); ?></label>
+            <input class="widefat" id="<?php echo $field_id('labels'); ?>" name="<?php echo $field_name('labels'); ?>" type="text" value="<?php echo esc_attr($labels); ?>">
+            <small><?php _e('Example: Captain|Coach|Manager', 'person-directory'); ?></small>
+        </p>
+        <p>
+            <em><?php _e('Tip: For a better selection UI, use the Gutenberg block on pages. This widget is a simple classic widget.', 'person-directory'); ?></em>
+        </p>
+        <?php
+    }
+
+    public function update($new_instance, $old_instance)
+    {
+        $instance = [];
+        $instance['title'] = sanitize_text_field($new_instance['title'] ?? '');
+
+        // Sanitize IDs
+        $ids_raw = isset($new_instance['ids']) ? (string)$new_instance['ids'] : '';
+        $ids = array_filter(array_map('absint', preg_split('/\s*,\s*/', $ids_raw)));
+        $instance['ids'] = implode(',', $ids);
+
+        // Sanitize labels (allow pipes as separators)
+        $labels_raw = isset($new_instance['labels']) ? (string)$new_instance['labels'] : '';
+        // Split by pipe, sanitize each, then re-join with single pipe
+        $labels = array_map('sanitize_text_field', explode('|', $labels_raw));
+        $labels = array_map(function($s){ return trim($s); }, $labels);
+        $instance['labels'] = implode('|', $labels);
+
+        return $instance;
+    }
+
+    public function widget($args, $instance)
+    {
+        $title  = isset($instance['title']) ? $instance['title'] : '';
+        $ids    = isset($instance['ids']) ? $instance['ids'] : '';
+        $labels = isset($instance['labels']) ? $instance['labels'] : '';
+
+        echo $args['before_widget'];
+        if (!empty($title)) {
+            echo $args['before_title'] . apply_filters('widget_title', $title) . $args['after_title'];
+        }
+
+        if (!empty($ids)) {
+            // Reuse the existing shortcode which calls the dynamic renderer
+            $shortcode = sprintf('[person_directory_people ids="%s" labels="%s"]', esc_attr($ids), esc_attr($labels));
+            echo do_shortcode($shortcode);
+        } else {
+            // No IDs set; render nothing (consistent with block behavior)
+        }
+
+        echo $args['after_widget'];
     }
 }
