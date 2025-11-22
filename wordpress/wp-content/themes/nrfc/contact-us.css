@@ -1,7 +1,25 @@
-/*.person-directory-item img {*/
-/*    display: none;*/
-/*}*/
+.person-directory-item .person-photo-link {
+    display: none;
+}
 
+.person-directory-item .person-info {
+    display: grid;
+    grid-template-areas:
+        "label"
+        "name"
+        "phone"
+        "email";
+}
 .person-directory-item .person-label {
-     font-weight: bold;
- }
+    font-weight: bold;
+    font-size: 120%;
+    grid-area: label;
+}
+.person-directory-item .person-phone {
+    font-weight: bold;
+    grid-area: phone;
+}
+
+.person-directory-item .person-email {
+    grid-area: email;
+}
