@@ -301,10 +301,12 @@ class PersonDirectory
             $phone = get_post_meta($p->ID, self::META_PHONE, true);
             $email = get_post_meta($p->ID, self::META_EMAIL, true);
             $thumb = get_the_post_thumbnail($p->ID, 'thumbnail', ['class' => 'person-photo', 'loading' => 'lazy', 'alt' => esc_attr($title)]);
-            echo '<li class="person-directory-item" style="border:1px solid #ddd;border-radius:8px;padding:12px;box-sizing:border-box;display:flex;gap:10px;align-items:flex-start;min-width:240px;flex:1 1 280px;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.06);">';
-            if ($thumb) {
-                echo '<a href="' . esc_url($permalink) . '" class="person-photo-link">' . $thumb . '</a>';
+            if (!$thumb) {
+                $placeholder = trailingslashit(get_stylesheet_directory_uri()) . '../nrfc/images/person-placeholder.png';
+                $thumb = '<img src="' . esc_url($placeholder) . '" class="person-photo" loading="lazy" alt="' . esc_attr($title) . '" height="150" width="150" style="border-radius:5%;object-fit:cover;display:block;" />';
             }
+            echo '<li class="person-directory-item" style="border:1px solid #ddd;border-radius:8px;padding:12px;box-sizing:border-box;display:flex;gap:10px;align-items:flex-start;min-width:240px;flex:1 1 280px;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.06);">';
+            echo '<a href="' . esc_url($permalink) . '" class="person-photo-link">' . $thumb . '</a>';
             echo '<div class="person-info">';
             echo '<div class="person-name"><a href="' . esc_url($permalink) . '">' . esc_html($title) . '</a></div>';
             if ($label !== '') {

@@ -1,0 +1,7 @@
+/*.person-directory-item img {*/
+/*    display: none;*/
+/*}*/
+
+.person-directory-item .person-label {
+     font-weight: bold;
+ }

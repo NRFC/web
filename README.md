@@ -20,6 +20,13 @@
 
  * `docker compose down`
 
+## Syncing up (for now)
+
+```
+rsync -a --progress plugins nrfc:/opt/docker/www-wp
+rsync -a --progress themes nrfc:/opt/docker/www-wp
+```
+
 ## Notes
 
 - Rewrites and ports: The `.htaccess` in `wordpress/.htaccess` uses the standard WordPress rules. These rules do internal path rewrites only and don't set the host or port. If you notice redirects or generated links dropping the dev port (e.g., `:8015`), an MU plugin at `wordpress/wp-content/mu-plugins/preserve-port.php` ensures non-standard ports are preserved in WordPress URLs and redirects. It also respects common proxy headers.

@@ -57,28 +57,6 @@ setup_environment() {
         print_status "WP CLI tool already exists"
     fi
 
-    # Check if database dump exists
-    if [ ! -f "initdb.d/dump.sql" ]; then
-        print_status "Grabbing SQL from live environment..."
-        ssh dev.norwichrugby.com /opt/docker/www-wp/backup.sh - | gzip -d > initdb.d/dump.sql || {
-            print_error "Failed to get SQL dump from live environment. Check you have ssh key access."
-            return 1
-        }
-    else
-        print_status "SQL dump already exists"
-    fi
-
-    # Check if uploads directory exists
-    if [ ! -d "wordpress/wp-content/uploads" ]; then
-        print_status "Grabbing media from live environment..."
-        rsync -a --progress dev.norwichrugby.com:/opt/docker/www-wp/uploads wordpress/wp-content/ || {
-            print_error "Failed to get media from live environment. Check you have ssh key access."
-            return 1
-        }
-    else
-        print_status "Media uploads already exist"
-    fi
-
     # Set UID and GID
     print_status "Setting UID and GID..."
     echo -e "UID=$(id -u)\nGID=$(id -g)\n" > .env
@@ -98,6 +76,18 @@ start_environment() {
             return 1
         }
     fi
+
+    print_status "Grabbing SQL from live environment..."
+    ssh dev.norwichrugby.com /opt/docker/www-wp/backup.sh - | gzip -d > initdb.d/dump.sql || {
+        print_error "Failed to get SQL dump from live environment. Check you have ssh key access."
+        return 1
+    }
+
+    print_status "Grabbing media from live environment..."
+    rsync -a --progress dev.norwichrugby.com:/opt/docker/www-wp/uploads wordpress/wp-content/ || {
+        print_error "Failed to get media from live environment. Check you have ssh key access."
+        return 1
+    }
 
     # Start Docker containers
     docker compose up -d || {

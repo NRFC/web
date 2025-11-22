@@ -43,3 +43,18 @@ function enqueue_sponsors_styles() {
 }
 
 add_action( 'wp_enqueue_scripts', 'enqueue_sponsors_styles' );
+
+function nrfc_enqueue_contact_styles() {
+	// Load only on the Contact Us page
+	if ( is_page( 'contact-us' ) ) { // you can also use the numeric ID
+		wp_enqueue_style(
+			'nrfc-contact-css',
+			get_template_directory_uri() . '/../nrfc/contact-us.css',
+			array(),
+			'1.0.0',
+			'all'
+		);
+	}
+}
+
+add_action( 'wp_enqueue_scripts', 'nrfc_enqueue_contact_styles' );
