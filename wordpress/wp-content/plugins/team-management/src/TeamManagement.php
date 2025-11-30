@@ -11,6 +11,13 @@ class TeamManagement
     public const CPT = 'team';
     public const META_GALLERY = '_team_gallery_ids'; // stores array of attachment IDs
     public const NONCE_METABOX = 'team_gallery_metabox_nonce';
+    public const META_AGE_GRADE = '_team_age_grade'; // stores string: senior|youth|minis
+    public const META_GENDER = '_team_gender'; // stores string: male|female|mixed
+
+    // Allowed values for age grade
+    private const AGE_GRADES = ['senior', 'u18', 'u18', 'u16', 'u15', 'u14', 'u13', 'u12', 'minis'];
+    // Allowed values for gender
+    private const GENDERS = ['male', 'female', 'mixed'];
 
     public function __construct()
     {
@@ -89,6 +96,42 @@ class TeamManagement
             ],
             'auth_callback' => function () { return current_user_can('edit_posts'); },
         ]);
+
+        // Age grade string meta
+        register_post_meta(self::CPT, self::META_AGE_GRADE, [
+            'type' => 'string',
+            'single' => true,
+            'default' => 'senior',
+            'sanitize_callback' => function ($value) {
+                $value = is_string($value) ? strtolower(trim($value)) : '';
+                return in_array($value, self::AGE_GRADES, true) ? $value : 'senior';
+            },
+            'show_in_rest' => [
+                'schema' => [
+                    'type' => 'string',
+                    'enum' => self::AGE_GRADES,
+                ],
+            ],
+            'auth_callback' => function () { return current_user_can('edit_posts'); },
+        ]);
+
+        // Gender string meta
+        register_post_meta(self::CPT, self::META_GENDER, [
+            'type' => 'string',
+            'single' => true,
+            'default' => 'mixed',
+            'sanitize_callback' => function ($value) {
+                $value = is_string($value) ? strtolower(trim($value)) : '';
+                return in_array($value, self::GENDERS, true) ? $value : 'mixed';
+            },
+            'show_in_rest' => [
+                'schema' => [
+                    'type' => 'string',
+                    'enum' => self::GENDERS,
+                ],
+            ],
+            'auth_callback' => function () { return current_user_can('edit_posts'); },
+        ]);
     }
 
     public function registerMetaboxes(): void
@@ -99,6 +142,24 @@ class TeamManagement
             [$this, 'renderGalleryMetabox'],
             self::CPT,
             'normal',
+            'default'
+        );
+
+        add_meta_box(
+            'team-age-grade-metabox',
+            __('Age Grade', 'team-management'),
+            [$this, 'renderAgeGradeMetabox'],
+            self::CPT,
+            'side',
+            'default'
+        );
+
+        add_meta_box(
+            'team-gender-metabox',
+            __('Gender', 'team-management'),
+            [$this, 'renderGenderMetabox'],
+            self::CPT,
+            'side',
             'default'
         );
     }
@@ -113,6 +174,69 @@ class TeamManagement
         echo '<div id="team-gallery-metabox-root" data-input-name="' . esc_attr(self::META_GALLERY) . '" data-selected="' . esc_attr(wp_json_encode($ids)) . '"></div>';
         // Fallback simple list
         echo '<p class="description">' . esc_html__('Use the "Select Media" button to choose images and files for this team.', 'team-management') . '</p>';
+    }
+
+    public function renderAgeGradeMetabox($post): void
+    {
+        // Reuse the same nonce to keep saving logic simple
+        wp_nonce_field(self::NONCE_METABOX, self::NONCE_METABOX);
+        $current = get_post_meta($post->ID, self::META_AGE_GRADE, true);
+        if (!is_string($current) || !in_array($current, self::AGE_GRADES, true)) {
+            $current = 'senior';
+        }
+
+        $options = [
+            'senior' => __('Senior', 'team-management'),
+            'u18'  => __('Under 18', 'team-management'),
+            'u16'  => __('Under 16', 'team-management'),
+            'u15'  => __('Under 15', 'team-management'),
+            'u14'  => __('Under 14', 'team-management'),
+            'u13'  => __('Under 13', 'team-management'),
+            'u12'  => __('under 12', 'team-management'),
+            'minis'  => __('Minis', 'team-management'),
+        ];
+
+        echo '<fieldset>';
+        echo '<legend class="screen-reader-text">' . esc_html__('Age Grade', 'team-management') . '</legend>';
+        foreach ($options as $value => $label) {
+            $id = 'team-age-grade-' . esc_attr($value);
+            echo '<p style="margin: 0 0 6px;">';
+            echo '<label for="' . $id . '">';
+            echo '<input type="radio" name="' . esc_attr(self::META_AGE_GRADE) . '" id="' . $id . '" value="' . esc_attr($value) . '" ' . checked($current, $value, false) . ' /> ' . esc_html($label);
+            echo '</label>';
+            echo '</p>';
+        }
+        echo '</fieldset>';
+        echo '<p class="description">' . esc_html__('Select the age grade for this team.', 'team-management') . '</p>';
+    }
+
+    public function renderGenderMetabox($post): void
+    {
+        // Reuse the same nonce as other metaboxes
+        wp_nonce_field(self::NONCE_METABOX, self::NONCE_METABOX);
+        $current = get_post_meta($post->ID, self::META_GENDER, true);
+        if (!is_string($current) || !in_array($current, self::GENDERS, true)) {
+            $current = 'mixed';
+        }
+
+        $options = [
+            'male' => __('Male', 'team-management'),
+            'female' => __('Female', 'team-management'),
+            'mixed' => __('Mixed', 'team-management'),
+        ];
+
+        echo '<fieldset>';
+        echo '<legend class="screen-reader-text">' . esc_html__('Gender', 'team-management') . '</legend>';
+        foreach ($options as $value => $label) {
+            $id = 'team-gender-' . esc_attr($value);
+            echo '<p style="margin: 0 0 6px;">';
+            echo '<label for="' . $id . '">';
+            echo '<input type="radio" name="' . esc_attr(self::META_GENDER) . '" id="' . $id . '" value="' . esc_attr($value) . '" ' . checked($current, $value, false) . ' /> ' . esc_html($label);
+            echo '</label>';
+            echo '</p>';
+        }
+        echo '</fieldset>';
+        echo '<p class="description">' . esc_html__('Select the gender for this team.', 'team-management') . '</p>';
     }
 
     public function saveTeamMeta($post_id): void
@@ -140,6 +264,22 @@ class TeamManagement
                 $ids = [];
             }
             update_post_meta($post_id, self::META_GALLERY, array_values($ids));
+        }
+
+        if (isset($_POST[self::META_AGE_GRADE])) {
+            $value = is_string($_POST[self::META_AGE_GRADE]) ? strtolower(trim(wp_unslash($_POST[self::META_AGE_GRADE]))) : '';
+            if (!in_array($value, self::AGE_GRADES, true)) {
+                $value = 'senior';
+            }
+            update_post_meta($post_id, self::META_AGE_GRADE, $value);
+        }
+
+        if (isset($_POST[self::META_GENDER])) {
+            $value = is_string($_POST[self::META_GENDER]) ? strtolower(trim(wp_unslash($_POST[self::META_GENDER]))) : '';
+            if (!in_array($value, self::GENDERS, true)) {
+                $value = 'mixed';
+            }
+            update_post_meta($post_id, self::META_GENDER, $value);
         }
     }
 
