@@ -13,6 +13,7 @@ class TeamManagement
     public const NONCE_METABOX = 'team_gallery_metabox_nonce';
     public const META_AGE_GRADE = '_team_age_grade'; // stores string: senior|youth|minis
     public const META_GENDER = '_team_gender'; // stores string: male|female|mixed
+    public const META_PEOPLE = '_team_people_ids'; // stores array of person post IDs
 
     // Allowed values for age grade
     private const AGE_GRADES = ['senior', 'u18', 'u18', 'u16', 'u15', 'u14', 'u13', 'u12', 'minis'];
@@ -97,6 +98,28 @@ class TeamManagement
             'auth_callback' => function () { return current_user_can('edit_posts'); },
         ]);
 
+        // People (PersonDirectory CPT) selection as array of IDs
+        register_post_meta(self::CPT, self::META_PEOPLE, [
+            'type' => 'array',
+            'single' => true,
+            'default' => [],
+            'sanitize_callback' => function ($value) {
+                if (!is_array($value)) {
+                    return [];
+                }
+                return array_values(array_filter(array_map('intval', $value), function ($id) {
+                    return $id > 0;
+                }));
+            },
+            'show_in_rest' => [
+                'schema' => [
+                    'type' => 'array',
+                    'items' => ['type' => 'integer'],
+                ],
+            ],
+            'auth_callback' => function () { return current_user_can('edit_posts'); },
+        ]);
+
         // Age grade string meta
         register_post_meta(self::CPT, self::META_AGE_GRADE, [
             'type' => 'string',
@@ -146,6 +169,15 @@ class TeamManagement
         );
 
         add_meta_box(
+            'team-people-metabox',
+            __('Team People', 'team-management'),
+            [$this, 'renderPeopleMetabox'],
+            self::CPT,
+            'normal',
+            'default'
+        );
+
+        add_meta_box(
             'team-age-grade-metabox',
             __('Age Grade', 'team-management'),
             [$this, 'renderAgeGradeMetabox'],
@@ -174,6 +206,18 @@ class TeamManagement
         echo '<div id="team-gallery-metabox-root" data-input-name="' . esc_attr(self::META_GALLERY) . '" data-selected="' . esc_attr(wp_json_encode($ids)) . '"></div>';
         // Fallback simple list
         echo '<p class="description">' . esc_html__('Use the "Select Media" button to choose images and files for this team.', 'team-management') . '</p>';
+    }
+
+    public function renderPeopleMetabox($post): void
+    {
+        // Reuse the same nonce
+        wp_nonce_field(self::NONCE_METABOX, self::NONCE_METABOX);
+        $ids = get_post_meta($post->ID, self::META_PEOPLE, true);
+        if (!is_array($ids)) {
+            $ids = [];
+        }
+        echo '<div id="team-people-metabox-root" data-input-name="' . esc_attr(self::META_PEOPLE) . '" data-selected="' . esc_attr(wp_json_encode($ids)) . '"></div>';
+        echo '<p class="description">' . esc_html__('Search and add people to this team. Drag to reorder; click × to remove.', 'team-management') . '</p>';        
     }
 
     public function renderAgeGradeMetabox($post): void
@@ -266,6 +310,18 @@ class TeamManagement
             update_post_meta($post_id, self::META_GALLERY, array_values($ids));
         }
 
+        if (isset($_POST[self::META_PEOPLE])) {
+            $raw = $_POST[self::META_PEOPLE];
+            if (is_string($raw)) {
+                $ids = array_filter(array_map('intval', array_filter(array_map('trim', explode(',', $raw)))));
+            } elseif (is_array($raw)) {
+                $ids = array_filter(array_map('intval', $raw));
+            } else {
+                $ids = [];
+            }
+            update_post_meta($post_id, self::META_PEOPLE, array_values($ids));
+        }
+
         if (isset($_POST[self::META_AGE_GRADE])) {
             $value = is_string($_POST[self::META_AGE_GRADE]) ? strtolower(trim(wp_unslash($_POST[self::META_AGE_GRADE]))) : '';
             if (!in_array($value, self::AGE_GRADES, true)) {
@@ -297,11 +353,18 @@ class TeamManagement
         // Build URL relative to the main plugin file to avoid src/ nesting
         $main_file = dirname(__DIR__) . '/team-management.php';
         $src = plugins_url('assets/admin.js', $main_file);
-        wp_enqueue_script($handle, $src, ['jquery'], '1.0.0', true);
+        // Ensure wpApiSettings is available for REST calls
+        wp_enqueue_script('wp-api');
+        wp_enqueue_script($handle, $src, ['jquery', 'wp-api'], '1.0.0', true);
 
         wp_localize_script($handle, 'TeamMgmtL10n', [
             'selectMedia' => __('Select Media', 'team-management'),
             'editSelection' => __('Edit Selection', 'team-management'),
+            'people' => [
+                'searchPlaceholder' => __('Search people…', 'team-management'),
+                'add' => __('Add', 'team-management'),
+                'noResults' => __('No people found.', 'team-management'),
+            ],
         ]);
     }
 }
