@@ -1,0 +1,10 @@
+{
+  "name": "nrfc/nrfc-wordpress",
+  "description": "Norwich Rugby Football Club WordPress Development Environment",
+  "type": "project",
+  "scripts": {
+    "test": "bin/test-all.sh",
+    "test:verbose": "bin/test-all.sh verbose"
+  }
+}
+

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/11.5/phpunit.xsd"
+  bootstrap="bin/phpunit-bootstrap.php"
+  colors="true"
+  cacheDirectory=".phpunit.cache"
+  failOnWarning="false"
+  failOnRisky="false"
+>
+  <testsuites>
+    <testsuite name="NRFC Plugin Tests">
+      <directory>wordpress/wp-content/plugins/nrfc-fixtures/tests</directory>
+      <directory>wordpress/wp-content/plugins/nrfc-match-reports/tests</directory>
+      <directory>wordpress/wp-content/plugins/nrfc-auto-links/tests</directory>
+      <directory>wordpress/wp-content/plugins/nrfc-person-directory/tests</directory>
+      <directory>wordpress/wp-content/plugins/nrfc-sponsor-management/tests</directory>
+    </testsuite>
+  </testsuites>
+  <source>
+    <include>
+      <directory>wordpress/wp-content/plugins/nrfc-fixtures/src</directory>
+      <directory>wordpress/wp-content/plugins/nrfc-match-reports/src</directory>
+      <directory>wordpress/wp-content/plugins/nrfc-auto-links/src</directory>
+      <directory>wordpress/wp-content/plugins/nrfc-person-directory/src</directory>
+      <directory>wordpress/wp-content/plugins/nrfc-sponsor-management/src</directory>
+    </include>
+  </source>
+</phpunit>
+

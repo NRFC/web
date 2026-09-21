@@ -1,0 +1,115 @@
+/* Header Sponsors */
+.header-sponsors {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    height: 100%;
+}
+
+.header-sponsors-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 15px;
+}
+
+.header-sponsor-item {
+    flex: 0 0 auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.header-sponsor-logo {
+    max-width: 100px;
+    max-height: 40px;
+    width: auto;
+    height: auto;
+    display: block;
+}
+
+.header-sponsor-name {
+    font-size: 14px;
+    font-weight: bold;
+}
+
+/* Footer Sponsors */
+.sponsors-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 30px;
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.sponsor-item {
+    flex: 0 0 auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.sponsor-logo {
+    max-width: 150px;
+    max-height: 150px;
+    width: auto;
+    height: auto;
+}
+
+.sponsor-logo-grey {
+    max-width: 150px;
+    max-height: 50px;
+    width: auto;
+    height: auto;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .header-sponsors {
+        justify-content: center;
+        margin-top: 10px;
+    }
+
+    .header-sponsors-container {
+        gap: 10px;
+        justify-content: center;
+    }
+
+    .header-sponsor-logo {
+        max-width: 70px;
+        max-height: 30px;
+    }
+
+    .sponsors-container {
+        gap: 20px;
+    }
+
+    .sponsor-logo {
+        max-width: 120px;
+        max-height: 60px;
+    }
+}
+
+@media (max-width: 480px) {
+    .header-sponsors-container {
+        gap: 8px;
+    }
+
+    .header-sponsor-logo {
+        max-width: 60px;
+        max-height: 25px;
+    }
+
+    .sponsors-container {
+        gap: 15px;
+    }
+
+    .sponsor-logo {
+        max-width: 100px;
+        max-height: 50px;
+    }
+}

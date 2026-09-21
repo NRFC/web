@@ -1,0 +1,118 @@
+.person-directory-container {
+    width: 100%;
+    max-width: 1200px;
+    padding: 30px;
+}
+
+.person-directory-card-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 40px;
+    margin-top: 20px;
+}
+
+.person-directory-image-text-card {
+    width: 192px;
+    background-color: white;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    /* Changed from overflow: hidden to allow the email popup to be visible */
+    overflow: visible;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.person-directory-image-container {
+    width: 192px;
+    height: 224px;
+    overflow: hidden;
+    position: relative;
+    border-top-left-radius: 16px;
+    border-top-right-radius: 16px;
+}
+
+.person-directory-image-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+
+.person-directory-image-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(to top, rgba(0,0,0,0.7), transparent);
+    color: white;
+    padding: 15px 5px 0 5px;
+    text-align: center;
+    font-size: 0.9rem;
+    opacity: 1;
+    transition: opacity 0.3s ease;
+}
+
+.person-directory-image-text-card:hover .person-directory-image-overlay {
+    opacity: 1;
+}
+
+.person-directory-text-content {
+    padding: 5px 18px;
+    background-color: white;
+    border-bottom-left-radius: 16px;
+    border-bottom-right-radius: 16px;
+}
+
+.person-directory-text-element {
+    margin-bottom: 1px;
+    padding-bottom: 1px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.person-directory-name {
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.person-directory-role {
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.person-directory-text-element:last-child {
+    margin-bottom: 0;
+    padding-bottom: 0;
+    border-bottom: none;
+}
+
+.email-container {
+    position: relative;
+}
+
+.email-popup {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background-color: white;
+    border: 1px solid #ccc;
+    padding: 5px;
+    z-index: 100;
+    white-space: nowrap;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    font-size: 0.9rem;
+}
+
+.email-container:hover .email-popup {
+    display: block;
+}
+
+@media (max-width: 768px) {
+    .person-directory-title h1 {
+        font-size: 2.2rem;
+    }
+
+    .person-directory-card-container {
+        gap: 30px;
+    }
+}

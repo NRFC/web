@@ -1,0 +1,77 @@
+# Production Dockerfile for PHP-FPM
+ARG WORDPRESS_BASE_IMAGE=wordpress:6.9-php8.4-fpm-alpine
+
+FROM ${WORDPRESS_BASE_IMAGE} AS wordpress-core
+
+FROM php:8.4-fpm-alpine
+
+# Set build arguments
+ARG VERSION=8.4
+
+# Install system dependencies
+RUN apk add --no-cache \
+    freetype-dev \
+    libjpeg-turbo-dev \
+    libpng-dev \
+    libwebp-dev \
+    libzip-dev \
+    openssl-dev \
+    libxml2-dev \
+    icu-dev \
+    mysql-client \
+    curl \
+    fcgi \
+    git \
+    unzip \
+    supervisor
+
+# Configure GD extension with various image format support
+RUN docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp
+
+# Install PHP extensions
+RUN docker-php-ext-install -j$(nproc) \
+    gd \
+    mysqli \
+    pdo_mysql \
+    zip \
+    exif \
+    intl \
+    bcmath \
+    opcache \
+    soap
+
+# Copy production PHP configuration
+COPY docker/production/php-fpm.conf /usr/local/etc/php-fpm.conf
+COPY docker/production/opcache.ini /usr/local/etc/php/conf.d/opcache.ini
+COPY docker/production/php.ini /usr/local/etc/php/conf.d/custom.ini
+
+# Copy WordPress core and site-specific content into the image
+COPY --from=wordpress-core /usr/src/wordpress/ /var/www/html/
+COPY wordpress/wp-content/ /var/www/html/wp-content/
+COPY wordpress/wp-config.php /var/www/html/wp-config.php
+COPY wordpress/.htaccess /var/www/html/.htaccess
+
+# Set production PHP settings
+RUN echo "error_reporting = E_ALL & ~E_DEPRECATED & ~E_STRICT" >> /usr/local/etc/php/conf.d/error-reporting.ini \
+    && echo "display_errors = Off" >> /usr/local/etc/php/conf.d/error-reporting.ini \
+    && echo "log_errors = On" >> /usr/local/etc/php/conf.d/error-reporting.ini
+
+# Set working directory
+WORKDIR /var/www/html
+
+# Create non-root user for production
+RUN addgroup -g 1001 -S www && \
+    adduser -u 1001 -S www -G www && \
+    mkdir -p /var/log/php-fpm && \
+    chown -R www:www /var/www/html /var/log/php-fpm
+
+USER www
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+    CMD sh -c 'SCRIPT_NAME=/ping SCRIPT_FILENAME=/ping REQUEST_METHOD=GET cgi-fcgi -bind -connect 127.0.0.1:9000 | grep -q pong'
+
+EXPOSE 9000
+
+CMD ["php-fpm"]
+

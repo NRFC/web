@@ -1,0 +1,60 @@
+.nrfc-match-reports-placeholder {
+    background: #f3f4f5;
+    border: 1px solid #ccd0d4;
+    padding: 20px;
+    text-align: center;
+}
+
+.nrfc-match-reports-placeholder .dashicons {
+    font-size: 40px;
+    width: 40px;
+    height: 40px;
+    color: #50575e;
+}
+
+.nrfc-match-reports-details {
+    font-size: 12px;
+    color: #646970;
+}
+
+.nrfc-latest-match-reports {
+    margin: 20px 0;
+}
+
+.nrfc-latest-match-reports ul {
+    list-style: none;
+    padding: 0;
+}
+
+.nrfc-latest-match-reports li {
+    margin-bottom: 20px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+}
+
+.nrfc-latest-match-reports .report-thumbnail {
+    margin-bottom: 10px;
+}
+
+.nrfc-latest-match-reports .report-thumbnail img {
+    display: block;
+    max-width: 100%;
+    height: auto;
+}
+
+.nrfc-latest-match-reports .report-title {
+    font-size: 1.2em;
+    font-weight: bold;
+    display: block;
+    margin-bottom: 5px;
+}
+
+.nrfc-latest-match-reports .report-meta {
+    font-size: 0.9em;
+    color: #666;
+    margin-bottom: 10px;
+}
+
+.nrfc-latest-match-reports .report-excerpt {
+    margin-bottom: 10px;
+}

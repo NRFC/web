@@ -1,0 +1,92 @@
+/* nrfc-fixtures-frontend.css - Styles for Fixtures Landing Page */
+
+.nrfc-fixtures-grid-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.nrfc-fixtures-grid {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    table-layout: fixed;
+}
+
+.nrfc-fixtures-grid th,
+.nrfc-fixtures-grid td {
+    border: 1px solid #ccc;
+    padding: 10px;
+    text-align: left;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.nrfc-fixtures-grid th {
+    background-color: #f4f4f4;
+}
+
+.nrfc-fixtures-grid tr:nth-child(even) {
+    background-color: #fafafa;
+}
+
+.nrfc-fixtures-mobile-list {
+    display: none;
+    margin-top: 20px;
+}
+
+.nrfc-fixture-date-block {
+    margin-bottom: 20px;
+    padding: 15px;
+    border: 1px solid #ccc;
+    background-color: #fff;
+}
+
+.nrfc-fixture-date-block h2 {
+    margin-top: 0;
+    font-size: 1.2em;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+}
+
+.nrfc-fixture-date-block ul {
+    margin: 10px 0 0 20px;
+    padding: 0;
+}
+
+/* Extracted from Fixtures.php */
+.nrfc-fixtures-filter-group {
+    margin-right: 15px;
+    display: inline-block;
+    vertical-align: top;
+    /*border: 1px black solid;*/
+    padding: 2px;
+}
+
+.nrfc-fixtures-filter-label {
+    margin-right: 15px;
+    display: block;
+}
+
+.nrfc-filter-submit {
+    margin-top: 10px;
+}
+
+/* Mobile styles */
+@media (max-width: 1000px) {
+    .nrfc-fixtures-grid {
+        display: none;
+    }
+
+    .nrfc-fixtures-mobile-list {
+        display: block;
+    }
+}
+
+/* Tablet styles */
+@media (min-width: 1001px) and (max-width: 1024px) {
+    .nrfc-fixtures-grid {
+        display: block;
+        overflow-x: auto;
+    }
+}

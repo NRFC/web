@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="MessDetectorOptionsConfiguration">
+    <option name="transferred" value="true" />
+  </component>
+  <component name="PHPCSFixerOptionsConfiguration">
+    <option name="transferred" value="true" />
+  </component>
+  <component name="PHPCodeSnifferOptionsConfiguration">
+    <option name="highlightLevel" value="WARNING" />
+    <option name="transferred" value="true" />
+  </component>
+  <component name="PhpCodeSniffer">
+    <phpcs_settings>
+      <phpcs_by_interpreter asDefaultInterpreter="true" interpreter_id="8b3e935e-810e-4c43-b43a-9d60267d5aa8" timeout="30000" />
+    </phpcs_settings>
+  </component>
+  <component name="PhpIncludePathManager">
+    <include_path>
+      <path value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-match-reports/vendor/phar-io/manifest" />
+      <path value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-match-reports/vendor/phar-io/version" />
+      <path value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-match-reports/vendor/sebastian/global-state" />
+      <path value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-match-reports/vendor/sebastian/complexity" />
+      <path value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-match-reports/vendor/sebastian/recursion-context" />
+      <path value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-match-reports/vendor/sebastian/object-reflector" />
+      <path value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-match-reports/vendor/sebastian/object-enumerator" />
+      <path value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-match-reports/vendor/sebastian/cli-parser" />
+      <path value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-match-reports/vendor/sebastian/lines-of-code" />
+      <path value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-match-reports/vendor/sebastian/diff" />
+      <path value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-match-reports/vendor/sebastian/type" />
+      <path value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-match-reports/vendor/sebastian/version" />
+      <path value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-match-reports/vendor/sebastian/comparator" />
+      <path value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-match-reports/vendor/sebastian/exporter" />
+      <path value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-match-reports/vendor/staabm/side-effects-detector" />
+      <path value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-match-reports/vendor/sebastian/environment" />
+      <path value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-match-reports/vendor/sebastian/code-unit" />
+      <path value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-match-reports/vendor/sebastian/code-unit-reverse-lookup" />
+      <path value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-match-reports/vendor/myclabs/deep-copy" />
+      <path value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-match-reports/vendor/composer" />
+      <path value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-match-reports/vendor/phpunit/php-file-iterator" />
+      <path value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-match-reports/vendor/nikic/php-parser" />
+      <path value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-match-reports/vendor/phpunit/php-timer" />
+      <path value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-match-reports/vendor/phpunit/php-text-template" />
+      <path value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-match-reports/vendor/phpunit/php-invoker" />
+      <path value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-match-reports/vendor/theseer/tokenizer" />
+      <path value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-match-reports/vendor/phpunit/php-code-coverage" />
+      <path value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-match-reports/vendor/phpunit/phpunit" />
+      <path value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-person-directory/vendor/composer" />
+      <path value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-person-directory/vendor/phpunit/php-file-iterator" />
+      <path value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-person-directory/vendor/nikic/php-parser" />
+      <path value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-person-directory/vendor/phpunit/php-timer" />
+      <path value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-person-directory/vendor/phpunit/php-text-template" />
+      <path value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-person-directory/vendor/phpunit/php-invoker" />
+      <path value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-person-directory/vendor/theseer/tokenizer" />
+      <path value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-person-directory/vendor/phpunit/php-code-coverage" />
+      <path value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-person-directory/vendor/phpunit/phpunit" />
+      <path value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-person-directory/vendor/phar-io/manifest" />
+      <path value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-person-directory/vendor/phar-io/version" />
+      <path value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-person-directory/vendor/sebastian/global-state" />
+      <path value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-person-directory/vendor/sebastian/complexity" />
+      <path value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-person-directory/vendor/sebastian/recursion-context" />
+      <path value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-person-directory/vendor/sebastian/object-reflector" />
+      <path value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-person-directory/vendor/sebastian/object-enumerator" />
+      <path value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-person-directory/vendor/sebastian/cli-parser" />
+      <path value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-person-directory/vendor/sebastian/lines-of-code" />
+      <path value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-person-directory/vendor/sebastian/diff" />
+      <path value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-person-directory/vendor/sebastian/type" />
+      <path value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-person-directory/vendor/sebastian/version" />
+      <path value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-person-directory/vendor/sebastian/comparator" />
+      <path value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-person-directory/vendor/sebastian/exporter" />
+      <path value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-person-directory/vendor/staabm/side-effects-detector" />
+      <path value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-person-directory/vendor/sebastian/environment" />
+      <path value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-person-directory/vendor/sebastian/code-unit" />
+      <path value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-person-directory/vendor/sebastian/code-unit-reverse-lookup" />
+      <path value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-person-directory/vendor/myclabs/deep-copy" />
+      <path value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-auto-links/vendor/phar-io/manifest" />
+      <path value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-auto-links/vendor/phar-io/version" />
+      <path value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-auto-links/vendor/sebastian/global-state" />
+      <path value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-auto-links/vendor/sebastian/complexity" />
+      <path value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-auto-links/vendor/sebastian/recursion-context" />
+      <path value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-auto-links/vendor/sebastian/object-reflector" />
+      <path value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-auto-links/vendor/sebastian/object-enumerator" />
+      <path value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-auto-links/vendor/sebastian/cli-parser" />
+      <path value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-auto-links/vendor/sebastian/lines-of-code" />
+      <path value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-auto-links/vendor/sebastian/diff" />
+      <path value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-auto-links/vendor/sebastian/type" />
+      <path value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-auto-links/vendor/sebastian/version" />
+      <path value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-auto-links/vendor/sebastian/comparator" />
+      <path value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-auto-links/vendor/sebastian/exporter" />
+      <path value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-auto-links/vendor/staabm/side-effects-detector" />
+      <path value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-auto-links/vendor/sebastian/environment" />
+      <path value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-auto-links/vendor/sebastian/code-unit" />
+      <path value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-auto-links/vendor/sebastian/code-unit-reverse-lookup" />
+      <path value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-auto-links/vendor/myclabs/deep-copy" />
+      <path value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-auto-links/vendor/composer" />
+      <path value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-auto-links/vendor/phpunit/php-file-iterator" />
+      <path value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-auto-links/vendor/nikic/php-parser" />
+      <path value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-auto-links/vendor/phpunit/php-timer" />
+      <path value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-auto-links/vendor/phpunit/php-text-template" />
+      <path value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-auto-links/vendor/phpunit/php-invoker" />
+      <path value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-auto-links/vendor/theseer/tokenizer" />
+      <path value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-auto-links/vendor/phpunit/php-code-coverage" />
+      <path value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-auto-links/vendor/phpunit/phpunit" />
+      <path value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-fixtures/vendor/staabm/side-effects-detector" />
+      <path value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-fixtures/vendor/sebastian/global-state" />
+      <path value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-fixtures/vendor/sebastian/complexity" />
+      <path value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-fixtures/vendor/sebastian/recursion-context" />
+      <path value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-fixtures/vendor/sebastian/object-reflector" />
+      <path value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-fixtures/vendor/sebastian/object-enumerator" />
+      <path value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-fixtures/vendor/sebastian/cli-parser" />
+      <path value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-fixtures/vendor/sebastian/lines-of-code" />
+      <path value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-fixtures/vendor/myclabs/deep-copy" />
+      <path value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-fixtures/vendor/sebastian/diff" />
+      <path value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-fixtures/vendor/sebastian/type" />
+      <path value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-fixtures/vendor/sebastian/version" />
+      <path value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-fixtures/vendor/sebastian/comparator" />
+      <path value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-fixtures/vendor/sebastian/exporter" />
+      <path value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-fixtures/vendor/sebastian/environment" />
+      <path value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-fixtures/vendor/sebastian/code-unit" />
+      <path value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-fixtures/vendor/sebastian/code-unit-reverse-lookup" />
+      <path value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-fixtures/vendor/phpunit/php-file-iterator" />
+      <path value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-fixtures/vendor/phpunit/php-timer" />
+      <path value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-fixtures/vendor/phpunit/php-text-template" />
+      <path value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-fixtures/vendor/phpunit/php-invoker" />
+      <path value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-fixtures/vendor/theseer/tokenizer" />
+      <path value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-fixtures/vendor/phpunit/php-code-coverage" />
+      <path value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-fixtures/vendor/composer" />
+      <path value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-fixtures/vendor/phpunit/phpunit" />
+      <path value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-fixtures/vendor/nikic/php-parser" />
+      <path value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-fixtures/vendor/phar-io/manifest" />
+      <path value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-fixtures/vendor/phar-io/version" />
+      <path value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-sponsor-management/vendor/sebastian/exporter" />
+      <path value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-sponsor-management/vendor/staabm/side-effects-detector" />
+      <path value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-sponsor-management/vendor/sebastian/environment" />
+      <path value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-sponsor-management/vendor/sebastian/code-unit" />
+      <path value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-sponsor-management/vendor/sebastian/code-unit-reverse-lookup" />
+      <path value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-sponsor-management/vendor/myclabs/deep-copy" />
+      <path value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-sponsor-management/vendor/composer" />
+      <path value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-sponsor-management/vendor/phpunit/php-file-iterator" />
+      <path value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-sponsor-management/vendor/nikic/php-parser" />
+      <path value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-sponsor-management/vendor/phpunit/php-timer" />
+      <path value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-sponsor-management/vendor/phpunit/php-text-template" />
+      <path value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-sponsor-management/vendor/phpunit/php-invoker" />
+      <path value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-sponsor-management/vendor/theseer/tokenizer" />
+      <path value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-sponsor-management/vendor/phpunit/php-code-coverage" />
+      <path value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-sponsor-management/vendor/phpunit/phpunit" />
+      <path value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-sponsor-management/vendor/phar-io/manifest" />
+      <path value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-sponsor-management/vendor/phar-io/version" />
+      <path value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-sponsor-management/vendor/sebastian/global-state" />
+      <path value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-sponsor-management/vendor/sebastian/complexity" />
+      <path value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-sponsor-management/vendor/sebastian/recursion-context" />
+      <path value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-sponsor-management/vendor/sebastian/object-reflector" />
+      <path value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-sponsor-management/vendor/sebastian/object-enumerator" />
+      <path value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-sponsor-management/vendor/sebastian/cli-parser" />
+      <path value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-sponsor-management/vendor/sebastian/lines-of-code" />
+      <path value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-sponsor-management/vendor/sebastian/diff" />
+      <path value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-sponsor-management/vendor/sebastian/type" />
+      <path value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-sponsor-management/vendor/sebastian/version" />
+      <path value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-sponsor-management/vendor/sebastian/comparator" />
+      <path value="$PROJECT_DIR$/vendor/composer" />
+    </include_path>
+  </component>
+  <component name="PhpProjectSharedConfiguration" php_language_level="8.0">
+    <option name="suggestChangeDefaultLanguageLevel" value="false" />
+  </component>
+  <component name="PhpStan">
+    <PhpStan_settings>
+      <phpstan_by_interpreter asDefaultInterpreter="true" interpreter_id="8b3e935e-810e-4c43-b43a-9d60267d5aa8" timeout="60000" />
+    </PhpStan_settings>
+  </component>
+  <component name="PhpStanOptionsConfiguration">
+    <option name="transferred" value="true" />
+  </component>
+  <component name="PhpUnit">
+    <phpunit_settings>
+      <PhpUnitSettings configuration_file_path="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-auto-links/phpunit.xml.dist" custom_loader_path="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-auto-links/vendor/autoload.php" use_configuration_file="true" />
+      <PhpUnitSettings configuration_file_path="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-match-reports/phpunit.xml.dist" custom_loader_path="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-match-reports/vendor/autoload.php" use_configuration_file="true" />
+      <PhpUnitSettings configuration_file_path="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-fixtures/phpunit.xml.dist" custom_loader_path="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-fixtures/vendor/autoload.php" use_configuration_file="true" />
+      <PhpUnitSettings configuration_file_path="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-person-directory/phpunit.xml.dist" custom_loader_path="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-person-directory/vendor/autoload.php" use_configuration_file="true" />
+      <PhpUnitSettings configuration_file_path="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-sponsor-management/phpunit.xml.dist" custom_loader_path="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-sponsor-management/vendor/autoload.php" use_configuration_file="true" />
+    </phpunit_settings>
+  </component>
+  <component name="Psalm">
+    <Psalm_settings>
+      <psalm_fixer_by_interpreter asDefaultInterpreter="true" interpreter_id="8b3e935e-810e-4c43-b43a-9d60267d5aa8" timeout="60000" />
+    </Psalm_settings>
+  </component>
+  <component name="PsalmOptionsConfiguration">
+    <option name="transferred" value="true" />
+  </component>
+</project>

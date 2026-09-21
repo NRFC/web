@@ -1,0 +1,41 @@
+.nrfc-fixtures-list {
+    margin: 20px 0;
+    font-family: inherit;
+}
+
+.nrfc-fixtures-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1em;
+}
+
+.nrfc-fixtures-table th,
+.nrfc-fixtures-table td {
+    padding: 10px;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+}
+
+.nrfc-fixtures-table th {
+    background-color: #f9f9f9;
+    font-weight: bold;
+}
+
+.nrfc-fixtures-placeholder {
+    padding: 20px;
+    background: #f1f1f1;
+    border: 1px solid #ccc;
+    text-align: center;
+}
+
+.nrfc-fixtures-placeholder .dashicons {
+    font-size: 40px;
+    width: 40px;
+    height: 40px;
+    color: #666;
+}
+
+.nrfc-fixtures-details {
+    font-size: 0.9em;
+    color: #666;
+}

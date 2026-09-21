@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module type="WEB_MODULE" version="4">
+  <component name="NewModuleRootManager">
+    <content url="file://$MODULE_DIR$">
+      <sourceFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-auto-links/tests" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-auto-links/tests" isTestSource="true" packagePrefix="NRFC\AutoLinks\Tests\" />
+      <sourceFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-fixtures/tests" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-fixtures/tests" isTestSource="true" packagePrefix="NRFC\Fixtures\Tests\" />
+      <sourceFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-match-reports/tests" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-match-reports/tests" isTestSource="true" packagePrefix="NRFC\MatchReports\Tests\" />
+      <sourceFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-person-directory/tests" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-person-directory/tests" isTestSource="true" packagePrefix="NRFC\PersonDirectory\Tests\" />
+      <sourceFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-sponsor-management/src" isTestSource="false" packagePrefix="SponsorManagement\" />
+      <sourceFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-sponsor-management/tests" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-sponsor-management/tests" isTestSource="true" packagePrefix="NRFC\SponsorManagement\Tests\" />
+      <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-auto-links/vendor/composer" />
+      <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-auto-links/vendor/myclabs/deep-copy" />
+      <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-auto-links/vendor/nikic/php-parser" />
+      <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-auto-links/vendor/phar-io/manifest" />
+      <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-auto-links/vendor/phar-io/version" />
+      <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-auto-links/vendor/phpunit/php-code-coverage" />
+      <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-auto-links/vendor/phpunit/php-file-iterator" />
+      <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-auto-links/vendor/phpunit/php-invoker" />
+      <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-auto-links/vendor/phpunit/php-text-template" />
+      <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-auto-links/vendor/phpunit/php-timer" />
+      <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-auto-links/vendor/phpunit/phpunit" />
+      <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-auto-links/vendor/sebastian/cli-parser" />
+      <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-auto-links/vendor/sebastian/code-unit" />
+      <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-auto-links/vendor/sebastian/code-unit-reverse-lookup" />
+      <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-auto-links/vendor/sebastian/comparator" />
+      <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-auto-links/vendor/sebastian/complexity" />
+      <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-auto-links/vendor/sebastian/diff" />
+      <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-auto-links/vendor/sebastian/environment" />
+      <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-auto-links/vendor/sebastian/exporter" />
+      <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-auto-links/vendor/sebastian/global-state" />
+      <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-auto-links/vendor/sebastian/lines-of-code" />
+      <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-auto-links/vendor/sebastian/object-enumerator" />
+      <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-auto-links/vendor/sebastian/object-reflector" />
+      <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-auto-links/vendor/sebastian/recursion-context" />
+      <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-auto-links/vendor/sebastian/type" />
+      <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-auto-links/vendor/sebastian/version" />
+      <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-auto-links/vendor/staabm/side-effects-detector" />
+      <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-auto-links/vendor/theseer/tokenizer" />
+      <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-fixtures/vendor/composer" />
+      <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-fixtures/vendor/myclabs/deep-copy" />
+      <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-fixtures/vendor/nikic/php-parser" />
+      <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-fixtures/vendor/phar-io/manifest" />
+      <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-fixtures/vendor/phar-io/version" />
+      <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-fixtures/vendor/phpunit/php-code-coverage" />
+      <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-fixtures/vendor/phpunit/php-file-iterator" />
+      <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-fixtures/vendor/phpunit/php-invoker" />
+      <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-fixtures/vendor/phpunit/php-text-template" />
+      <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-fixtures/vendor/phpunit/php-timer" />
+      <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-fixtures/vendor/phpunit/phpunit" />
+      <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-fixtures/vendor/sebastian/cli-parser" />
+      <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-fixtures/vendor/sebastian/code-unit" />
+      <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-fixtures/vendor/sebastian/code-unit-reverse-lookup" />
+      <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-fixtures/vendor/sebastian/comparator" />
+      <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-fixtures/vendor/sebastian/complexity" />
+      <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-fixtures/vendor/sebastian/diff" />
+      <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-fixtures/vendor/sebastian/environment" />
+      <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-fixtures/vendor/sebastian/exporter" />
+      <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-fixtures/vendor/sebastian/global-state" />
+      <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-fixtures/vendor/sebastian/lines-of-code" />
+      <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-fixtures/vendor/sebastian/object-enumerator" />
+      <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-fixtures/vendor/sebastian/object-reflector" />
+      <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-fixtures/vendor/sebastian/recursion-context" />
+      <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-fixtures/vendor/sebastian/type" />
+      <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-fixtures/vendor/sebastian/version" />
+      <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-fixtures/vendor/staabm/side-effects-detector" />
+      <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-fixtures/vendor/theseer/tokenizer" />
+      <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-match-reports/vendor/composer" />
+      <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-match-reports/vendor/myclabs/deep-copy" />
+      <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-match-reports/vendor/nikic/php-parser" />
+      <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-match-reports/vendor/phar-io/manifest" />
+      <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-match-reports/vendor/phar-io/version" />
+      <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-match-reports/vendor/phpunit/php-code-coverage" />
+      <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-match-reports/vendor/phpunit/php-file-iterator" />
+      <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-match-reports/vendor/phpunit/php-invoker" />
+      <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-match-reports/vendor/phpunit/php-text-template" />
+      <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-match-reports/vendor/phpunit/php-timer" />
+      <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-match-reports/vendor/phpunit/phpunit" />
+      <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-match-reports/vendor/sebastian/cli-parser" />
+      <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-match-reports/vendor/sebastian/code-unit" />
+      <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-match-reports/vendor/sebastian/code-unit-reverse-lookup" />
+      <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-match-reports/vendor/sebastian/comparator" />
+      <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-match-reports/vendor/sebastian/complexity" />
+      <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-match-reports/vendor/sebastian/diff" />
+      <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-match-reports/vendor/sebastian/environment" />
+      <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-match-reports/vendor/sebastian/exporter" />
+      <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-match-reports/vendor/sebastian/global-state" />
+      <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-match-reports/vendor/sebastian/lines-of-code" />
+      <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-match-reports/vendor/sebastian/object-enumerator" />
+      <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-match-reports/vendor/sebastian/object-reflector" />
+      <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-match-reports/vendor/sebastian/recursion-context" />
+      <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-match-reports/vendor/sebastian/type" />
+      <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-match-reports/vendor/sebastian/version" />
+      <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-match-reports/vendor/staabm/side-effects-detector" />
+      <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-match-reports/vendor/theseer/tokenizer" />
+      <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-person-directory/vendor/composer" />
+      <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-person-directory/vendor/myclabs/deep-copy" />
+      <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-person-directory/vendor/nikic/php-parser" />
+      <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-person-directory/vendor/phar-io/manifest" />
+      <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-person-directory/vendor/phar-io/version" />
+      <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-person-directory/vendor/phpunit/php-code-coverage" />
+      <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-person-directory/vendor/phpunit/php-file-iterator" />
+      <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-person-directory/vendor/phpunit/php-invoker" />
+      <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-person-directory/vendor/phpunit/php-text-template" />
+      <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-person-directory/vendor/phpunit/php-timer" />
+      <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-person-directory/vendor/phpunit/phpunit" />
+      <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-person-directory/vendor/sebastian/cli-parser" />
+      <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-person-directory/vendor/sebastian/code-unit" />
+      <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-person-directory/vendor/sebastian/code-unit-reverse-lookup" />
+      <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-person-directory/vendor/sebastian/comparator" />
+      <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-person-directory/vendor/sebastian/complexity" />
+      <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-person-directory/vendor/sebastian/diff" />
+      <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-person-directory/vendor/sebastian/environment" />
+      <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-person-directory/vendor/sebastian/exporter" />
+      <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-person-directory/vendor/sebastian/global-state" />
+      <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-person-directory/vendor/sebastian/lines-of-code" />
+      <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-person-directory/vendor/sebastian/object-enumerator" />
+      <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-person-directory/vendor/sebastian/object-reflector" />
+      <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-person-directory/vendor/sebastian/recursion-context" />
+      <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-person-directory/vendor/sebastian/type" />
+      <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-person-directory/vendor/sebastian/version" />
+      <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-person-directory/vendor/staabm/side-effects-detector" />
+      <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-person-directory/vendor/theseer/tokenizer" />
+      <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-sponsor-management/vendor/composer" />
+      <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-sponsor-management/vendor/myclabs/deep-copy" />
+      <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-sponsor-management/vendor/nikic/php-parser" />
+      <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-sponsor-management/vendor/phar-io/manifest" />
+      <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-sponsor-management/vendor/phar-io/version" />
+      <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-sponsor-management/vendor/phpunit/php-code-coverage" />
+      <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-sponsor-management/vendor/phpunit/php-file-iterator" />
+      <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-sponsor-management/vendor/phpunit/php-invoker" />
+      <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-sponsor-management/vendor/phpunit/php-text-template" />
+      <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-sponsor-management/vendor/phpunit/php-timer" />
+      <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-sponsor-management/vendor/phpunit/phpunit" />
+      <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-sponsor-management/vendor/sebastian/cli-parser" />
+      <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-sponsor-management/vendor/sebastian/code-unit" />
+      <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-sponsor-management/vendor/sebastian/code-unit-reverse-lookup" />
+      <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-sponsor-management/vendor/sebastian/comparator" />
+      <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-sponsor-management/vendor/sebastian/complexity" />
+      <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-sponsor-management/vendor/sebastian/diff" />
+      <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-sponsor-management/vendor/sebastian/environment" />
+      <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-sponsor-management/vendor/sebastian/exporter" />
+      <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-sponsor-management/vendor/sebastian/global-state" />
+      <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-sponsor-management/vendor/sebastian/lines-of-code" />
+      <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-sponsor-management/vendor/sebastian/object-enumerator" />
+      <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-sponsor-management/vendor/sebastian/object-reflector" />
+      <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-sponsor-management/vendor/sebastian/recursion-context" />
+      <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-sponsor-management/vendor/sebastian/type" />
+      <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-sponsor-management/vendor/sebastian/version" />
+      <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-sponsor-management/vendor/staabm/side-effects-detector" />
+      <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-sponsor-management/vendor/theseer/tokenizer" />
+      <excludeFolder url="file://$MODULE_DIR$/vendor/composer" />
+    </content>
+    <orderEntry type="inheritedJdk" />
+    <orderEntry type="sourceFolder" forTests="false" />
+  </component>
+</module>
