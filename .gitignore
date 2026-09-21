@@ -54,3 +54,4 @@ skunk*
 /wp-cli.phar
 sample_fixtures.csv
 vendor
+node_modules

@@ -1,0 +1,26 @@
+{
+  "name": "nrfc-website",
+  "version": "1.0.0",
+  "description": "The Norwich Rugby Club website",
+  "homepage": "https://github.com/NRFC/web#readme",
+  "bugs": {
+    "url": "https://github.com/NRFC/web/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/NRFC/web.git"
+  },
+  "license": "ISC",
+  "author": "Toby Batch <rugby@nfn.org.uk>",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "prepare": "husky"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^21.2.3",
+    "@commitlint/config-conventional": "^21.2.3",
+    "husky": "^9.1.7"
+  }
+}
