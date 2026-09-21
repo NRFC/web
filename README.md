@@ -5,9 +5,16 @@
  * Wordpress CLI tool. https://make.wordpress.org/cli/handbook/guides/installing/
  * php 8.3 or above `apt install php8.3` or `brew install php@8.3`
  * docker
+ * node and nvm
  * mysql client: `apt install mysql-client` or `brew install mysql-client`
  * If you're on Windoze I seriously suggest you use WSL
 
+## Install dependencies
+
+```bash
+nvm use
+yarn install
+```
 
 ## Cleaning out fixtures
 
