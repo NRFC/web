@@ -4,10 +4,10 @@
     <option name="directories">
       <list>
         <option value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-person-directory/tests" />
-        <option value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-match-reports/tests" />
-        <option value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-auto-links/tests" />
-        <option value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-sponsor-management/tests" />
         <option value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-fixtures/tests" />
+        <option value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-sponsor-management/tests" />
+        <option value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-auto-links/tests" />
+        <option value="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-match-reports/tests" />
       </list>
     </option>
   </component>

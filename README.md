@@ -7,7 +7,8 @@
  * docker
  * mysql client: `apt install mysql-client` or `brew install mysql-client`
  * If you're on Windoze I seriously suggest you use WSL
-
+ * You have ssh key access to the NRFC server
+ * You are part of the NRFC git team
 
 ## Cleaning out fixtures
 

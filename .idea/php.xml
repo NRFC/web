@@ -160,7 +160,7 @@
       <path value="$PROJECT_DIR$/vendor/composer" />
     </include_path>
   </component>
-  <component name="PhpProjectSharedConfiguration" php_language_level="8.0">
+  <component name="PhpProjectSharedConfiguration" php_language_level="8.5">
     <option name="suggestChangeDefaultLanguageLevel" value="false" />
   </component>
   <component name="PhpStan">
@@ -173,11 +173,11 @@
   </component>
   <component name="PhpUnit">
     <phpunit_settings>
-      <PhpUnitSettings configuration_file_path="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-auto-links/phpunit.xml.dist" custom_loader_path="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-auto-links/vendor/autoload.php" use_configuration_file="true" />
-      <PhpUnitSettings configuration_file_path="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-match-reports/phpunit.xml.dist" custom_loader_path="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-match-reports/vendor/autoload.php" use_configuration_file="true" />
-      <PhpUnitSettings configuration_file_path="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-fixtures/phpunit.xml.dist" custom_loader_path="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-fixtures/vendor/autoload.php" use_configuration_file="true" />
       <PhpUnitSettings configuration_file_path="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-person-directory/phpunit.xml.dist" custom_loader_path="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-person-directory/vendor/autoload.php" use_configuration_file="true" />
       <PhpUnitSettings configuration_file_path="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-sponsor-management/phpunit.xml.dist" custom_loader_path="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-sponsor-management/vendor/autoload.php" use_configuration_file="true" />
+      <PhpUnitSettings configuration_file_path="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-fixtures/phpunit.xml.dist" custom_loader_path="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-fixtures/vendor/autoload.php" use_configuration_file="true" />
+      <PhpUnitSettings configuration_file_path="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-match-reports/phpunit.xml.dist" custom_loader_path="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-match-reports/vendor/autoload.php" use_configuration_file="true" />
+      <PhpUnitSettings configuration_file_path="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-auto-links/phpunit.xml.dist" custom_loader_path="$PROJECT_DIR$/wordpress/wp-content/plugins/nrfc-auto-links/vendor/autoload.php" use_configuration_file="true" />
     </phpunit_settings>
   </component>
   <component name="Psalm">
