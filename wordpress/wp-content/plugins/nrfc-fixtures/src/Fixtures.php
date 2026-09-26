@@ -61,15 +61,20 @@ class Fixtures
         // Register Landing Page
         add_action('init', [$this, 'register_landing_page_rewrite']);
         add_filter('template_include', [$this, 'handle_landing_page_template']);
+        add_action('template_redirect', [$this, 'handle_public_export_route']);
         add_filter('query_vars', [$this, 'register_query_vars']);
+
+        // Register REST API Route
+        add_action('rest_api_init', [$this, 'register_rest_routes']);
     }
 
     /**
-     * Register rewrite rule for the fixtures landing page
+     * Register rewrite rule for the fixtures landing page and export endpoint
      */
     public function register_landing_page_rewrite(): void
     {
         add_rewrite_rule('^fixtures/?$', 'index.php?nrfc_fixtures_page=1', 'top');
+        add_rewrite_rule('^fixtures/export/?$', 'index.php?nrfc_fixtures_export=1', 'top');
     }
 
     /**
@@ -78,8 +83,167 @@ class Fixtures
     public function register_query_vars($vars): array
     {
         $vars[] = 'nrfc_fixtures_page';
+        $vars[] = 'nrfc_fixtures_export';
         $vars[] = 'teams';
+        $vars[] = 'team';
         return $vars;
+    }
+
+    /**
+     * Register REST API routes for fixtures
+     */
+    public function register_rest_routes(): void
+    {
+        register_rest_route('nrfc-fixtures/v1', '/export', [
+            'methods'             => 'GET',
+            'callback'            => [$this, 'rest_export_fixtures'],
+            'permission_callback' => '__return_true',
+            'args'                => [
+                'team' => [
+                    'description'       => __('Team name, slug, alias, or ID.', 'nrfc-fixtures'),
+                    'type'              => 'string',
+                    'required'          => false,
+                    'sanitize_callback' => 'sanitize_text_field',
+                ],
+                'team_name' => [
+                    'description'       => __('Team name, slug, alias, or ID.', 'nrfc-fixtures'),
+                    'type'              => 'string',
+                    'required'          => false,
+                    'sanitize_callback' => 'sanitize_text_field',
+                ],
+            ],
+        ]);
+    }
+
+    /**
+     * REST API callback for exporting fixtures for a team
+     *
+     * @param \WP_REST_Request|null $request
+     * @return \WP_Error|void
+     */
+    public function rest_export_fixtures(?\WP_REST_Request $request = null)
+    {
+        $team_param = '';
+        if ($request !== null && method_exists($request, 'get_param')) {
+            $team_param = (string) ($request->get_param('team') ?? $request->get_param('team_name') ?? '');
+        }
+
+        if ($team_param === '' && isset($_GET['team'])) {
+            $team_param = (string) $_GET['team'];
+        } elseif ($team_param === '' && isset($_GET['team_name'])) {
+            $team_param = (string) $_GET['team_name'];
+        }
+
+        $team_param = trim(sanitize_text_field($team_param));
+        if ($team_param === '') {
+            return new \WP_Error('missing_team', __('A team parameter is required.', 'nrfc-fixtures'), ['status' => 400]);
+        }
+
+        $team = $this->resolve_team($team_param);
+        if (!$team) {
+            return new \WP_Error('team_not_found', sprintf(__('Team "%s" not found.', 'nrfc-fixtures'), $team_param), ['status' => 404]);
+        }
+
+        $this->stream_spond_csv($team);
+    }
+
+    /**
+     * Handle public export route via GET request
+     */
+    public function handle_public_export_route(): void
+    {
+        $is_export = get_query_var('nrfc_fixtures_export')
+            || (isset($_GET['nrfc_fixtures_export']) && $_GET['nrfc_fixtures_export'])
+            || (isset($_GET['export']) && $_GET['export'] === 'spond');
+
+        if (!$is_export) {
+            return;
+        }
+
+        $team_param = $_GET['team'] ?? $_GET['team_name'] ?? get_query_var('team') ?? get_query_var('teams') ?? '';
+        $team_param = trim(sanitize_text_field((string)$team_param));
+
+        if ($team_param === '') {
+            status_header(400);
+            wp_die(__('A team parameter is required for export.', 'nrfc-fixtures'), __('Bad Request', 'nrfc-fixtures'), ['response' => 400]);
+        }
+
+        $team = $this->resolve_team($team_param);
+        if (!$team) {
+            status_header(404);
+            wp_die(sprintf(__('Team "%s" not found.', 'nrfc-fixtures'), esc_html($team_param)), __('Team Not Found', 'nrfc-fixtures'), ['response' => 404]);
+        }
+
+        $this->stream_spond_csv($team);
+    }
+
+    /**
+     * Resolve a team name, slug, alias, or ID to a WP_Term object
+     *
+     * @param string|int $team_identifier
+     * @return \WP_Term|null
+     */
+    public function resolve_team(string|int $team_identifier): ?\WP_Term
+    {
+        if (is_int($team_identifier) || ctype_digit(trim((string)$team_identifier))) {
+            $term_id = (int)$team_identifier;
+            if ($term_id > 0) {
+                $term = get_term($term_id, self::TAX_TEAM);
+                if ($term instanceof \WP_Term) {
+                    return $term;
+                }
+            }
+        }
+
+        $team_str = trim((string)$team_identifier);
+        if ($team_str === '') {
+            return null;
+        }
+
+        // Try exact name match
+        $term = get_term_by('name', $team_str, self::TAX_TEAM);
+        if ($term instanceof \WP_Term) {
+            return $term;
+        }
+
+        // Try slug match
+        $term = get_term_by('slug', sanitize_title($team_str), self::TAX_TEAM);
+        if ($term instanceof \WP_Term) {
+            return $term;
+        }
+
+        // Try normalised name and its slug
+        $normalised = $this->normaliseTeam($team_str);
+        if ($normalised !== $team_str) {
+            $term = get_term_by('name', $normalised, self::TAX_TEAM);
+            if ($term instanceof \WP_Term) {
+                return $term;
+            }
+            $term = get_term_by('slug', sanitize_title($normalised), self::TAX_TEAM);
+            if ($term instanceof \WP_Term) {
+                return $term;
+            }
+        }
+
+        // Case-insensitive fallback match against all terms in TAX_TEAM
+        $all_teams = get_terms([
+            'taxonomy'   => self::TAX_TEAM,
+            'hide_empty' => false,
+        ]);
+        if (!empty($all_teams) && !is_wp_error($all_teams)) {
+            foreach ($all_teams as $t) {
+                if ($t instanceof \WP_Term) {
+                    if (strcasecmp($t->name, $team_str) === 0 || strcasecmp($t->slug, $team_str) === 0) {
+                        return $t;
+                    }
+                    if (strcasecmp($t->name, $normalised) === 0 || strcasecmp($t->slug, $normalised) === 0) {
+                        return $t;
+                    }
+                }
+            }
+        }
+
+        return null;
     }
 
     /**
@@ -835,8 +999,10 @@ class Fixtures
         echo '<td>';
         echo '<select name="team_id" id="team_id" required>';
         echo '<option value="">' . esc_html__('-- Select Team --', 'nrfc-fixtures') . '</option>';
-        foreach ($teams as $team) {
-            echo '<option value="' . esc_attr($team->term_id) . '">' . esc_html($team->name) . '</option>';
+        if (!empty($teams) && !is_wp_error($teams)) {
+            foreach ($teams as $team) {
+                echo '<option value="' . esc_attr($team->term_id) . '">' . esc_html($team->name) . '</option>';
+            }
         }
         echo '</select>';
         echo '</td>';
@@ -845,6 +1011,37 @@ class Fixtures
 
         submit_button(__('Export to CSV', 'nrfc-fixtures'), 'primary', 'submit', false);
         echo '</form>';
+
+        if (!empty($teams) && !is_wp_error($teams)) {
+            echo '<hr style="margin-top: 30px; margin-bottom: 20px;" />';
+            echo '<h2>' . esc_html__('Public GET Export Links', 'nrfc-fixtures') . '</h2>';
+            echo '<p>' . esc_html__('Below are direct links to export fixtures for each team via GET request:', 'nrfc-fixtures') . '</p>';
+            echo '<table class="widefat striped" style="max-width: 900px; margin-top: 10px;">';
+            echo '<thead>';
+            echo '<tr>';
+            echo '<th scope="col">' . esc_html__('Team', 'nrfc-fixtures') . '</th>';
+            echo '<th scope="col">' . esc_html__('Export Link', 'nrfc-fixtures') . '</th>';
+            echo '<th scope="col">' . esc_html__('REST API Endpoint', 'nrfc-fixtures') . '</th>';
+            echo '</tr>';
+            echo '</thead>';
+            echo '<tbody>';
+            foreach ($teams as $team) {
+                if (!($team instanceof \WP_Term)) {
+                    continue;
+                }
+                $export_url = home_url('/fixtures/export?team=' . rawurlencode($team->slug));
+                $rest_url   = function_exists('rest_url') ? rest_url('nrfc-fixtures/v1/export?team=' . rawurlencode($team->slug)) : home_url('/wp-json/nrfc-fixtures/v1/export?team=' . rawurlencode($team->slug));
+
+                echo '<tr>';
+                echo '<td><strong>' . esc_html($team->name) . '</strong></td>';
+                echo '<td><a href="' . esc_url($export_url) . '" target="_blank">' . esc_html($export_url) . '</a></td>';
+                echo '<td><a href="' . esc_url($rest_url) . '" target="_blank">' . esc_html($rest_url) . '</a></td>';
+                echo '</tr>';
+            }
+            echo '</tbody>';
+            echo '</table>';
+        }
+
         echo '</div>';
     }
 
@@ -864,20 +1061,91 @@ class Fixtures
     }
 
     /**
-     * Handle Spond Export
+     * Build a single row for the Spond CSV export
+     *
+     * @param string $team_name
+     * @param string $date_val
+     * @param string $kick_off_time
+     * @param string $venue
+     * @param string $opp_club
+     * @param string $opp_team
+     * @param string $fixture_title
+     * @return array|null
      */
-    private function handle_spond_export()
+    public function build_spond_row(
+        string $team_name,
+        string $date_val,
+        string $kick_off_time,
+        string $venue,
+        string $opp_club,
+        string $opp_team,
+        string $fixture_title
+    ): ?array {
+        $date_obj = $this->clean_up_date($date_val);
+        if (!$date_obj) {
+            return null;
+        }
+
+        $formatted_date = $date_obj->format('d/m/Y');
+
+        $time_val = trim($kick_off_time);
+        if ($time_val === '' || $time_val === '00:00' || $time_val === '00:00:00') {
+            $start_time = '11:00';
+        } else {
+            $time_obj = DateTime::createFromFormat('H:i', $time_val) ?: DateTime::createFromFormat('H:i:s', $time_val);
+            if (!$time_obj) {
+                $timestamp = strtotime($time_val);
+                $start_time = ($timestamp !== false) ? date('H:i', $timestamp) : '11:00';
+            } else {
+                $start_time = $time_obj->format('H:i');
+            }
+        }
+
+        $start_dt = DateTime::createFromFormat('H:i', $start_time);
+        if ($start_dt) {
+            $start_dt->modify('+2 hours');
+            $end_time = $start_dt->format('H:i');
+        } else {
+            $end_time = '13:00';
+        }
+
+        $opp_club = trim($opp_club);
+        $opp_team = trim($opp_team);
+        $opposing_team = trim($opp_club . (!empty($opp_team) ? ' ' . $opp_team : ''));
+
+        $is_away = strtolower(trim($venue)) === 'away';
+        if ($is_away) {
+            $match_type = 'Away match';
+            $home_team  = $opposing_team;
+            $away_team  = trim($team_name);
+        } else {
+            $match_type = 'Home match';
+            $home_team  = trim($team_name);
+            $away_team  = $opposing_team;
+        }
+
+        return [
+            $formatted_date,
+            $start_time,
+            '01:00',
+            $formatted_date,
+            $end_time,
+            $match_type,
+            $home_team,
+            $away_team,
+            $fixture_title,
+            '',
+        ];
+    }
+
+    /**
+     * Generate Spond CSV content for a given team
+     *
+     * @param \WP_Term $team
+     * @return string
+     */
+    public function generate_spond_csv(\WP_Term $team): string
     {
-        $team_id = isset($_POST['team_id']) ? (int)$_POST['team_id'] : 0;
-        if (!$team_id) {
-            return;
-        }
-
-        $team = get_term($team_id, self::TAX_TEAM);
-        if (!$team || is_wp_error($team)) {
-            return;
-        }
-
         $args = [
             'post_type'      => self::CPT,
             'post_status'    => 'publish',
@@ -889,89 +1157,105 @@ class Fixtures
                 [
                     'taxonomy' => self::TAX_TEAM,
                     'field'    => 'term_id',
-                    'terms'    => $team_id,
+                    'terms'    => $team->term_id,
                 ],
             ],
         ];
 
         $query = new \WP_Query($args);
-        $fixtures = $query->posts;
+        $fixtures = $query->posts ?? [];
 
-        $filename = sprintf('%s-for-spond.csv', sanitize_title($team->name));
-        
-        header('Content-Type: text/csv; charset=utf-8');
-        header('Content-Disposition: attachment; filename=' . $filename);
-        header('Pragma: no-cache');
-        header('Expires: 0');
+        $output = fopen('php://temp', 'r+');
 
-        $output = fopen('php://output', 'w');
+        fputcsv($output, [
+            'Start date',
+            'Start time',
+            'Meet up',
+            'End date',
+            'End time',
+            'Match type',
+            'Home team',
+            'Away team',
+            'Description',
+            'Place',
+        ], ',', '"', "\\");
 
         foreach ($fixtures as $fixture_post) {
-            $id = $fixture_post->ID;
-            
-            // Get Competition
-            $comp_terms = wp_get_object_terms($id, self::TAX_COMPETITION);
-            $comp_name = !empty($comp_terms) ? $comp_terms[0]->name : '';
-            
-            // Skip Training/None if they match Symfony logic
-            if (in_array(strtolower($comp_name), ['training', 'none', 'pathway'])) {
+            $id = is_object($fixture_post) ? ($fixture_post->ID ?? 0) : (int)$fixture_post;
+            if (!$id) {
                 continue;
             }
 
-            $date_val = get_post_meta($id, self::META_DATE, true);
-            $time_val = get_post_meta($id, self::META_KICK_OFF_TIME, true);
-            if (empty($time_val)) {
-                $time_val = '00:00:00';
-            }
-            
-            $dt_string = $date_val . ' ' . $time_val;
-            $date_obj = date_create($dt_string);
-            
-            if (!$date_obj) {
-                continue;
-            }
+            $date_val      = (string) get_post_meta($id, self::META_DATE, true);
+            $kick_off_time = (string) get_post_meta($id, self::META_KICK_OFF_TIME, true);
+            $venue         = (string) get_post_meta($id, self::META_VENUE, true);
 
-            $is_midnight = $date_obj->format('H:i:s') === '00:00:00';
-            $start_time = $is_midnight ? '11:00' : $date_obj->format('H:i');
-            
-            $end_date_obj = clone $date_obj;
-            if ($is_midnight) {
-                $end_time = '13:00';
-            } else {
-                date_modify($end_date_obj, '+2 hours');
-                $end_time = $end_date_obj->format('H:i');
-            }
-
-            $venue = get_post_meta($id, self::META_VENUE, true);
-            $is_home = strtolower($venue) === 'home';
-            
             $opp_club_terms = wp_get_object_terms($id, self::TAX_OPPOSING_CLUB);
-            $opp_club = !empty($opp_club_terms) ? $opp_club_terms[0]->name : '';
+            $opp_club = !empty($opp_club_terms) && !is_wp_error($opp_club_terms) && isset($opp_club_terms[0]->name) ? $opp_club_terms[0]->name : '';
 
-            $home_team = $is_home ? 'Norwich ' . $team->name : $opp_club . ' ' . $team->name;
-            $away_team = $is_home ? $opp_club . ' ' . $team->name : 'Norwich ' . $team->name;
+            $opp_team_terms = wp_get_object_terms($id, self::TAX_OPPOSING_TEAM);
+            $opp_team = !empty($opp_team_terms) && !is_wp_error($opp_team_terms) && isset($opp_team_terms[0]->name) ? $opp_team_terms[0]->name : '';
 
-            $notes = get_post_meta($id, self::META_NOTES, true);
-            $description = $fixture_post->post_title;
-            if (!empty($notes)) {
-                $description .= ' - ' . $notes;
+            $fixture_title = !empty($fixture_post->post_title) ? $fixture_post->post_title : get_the_title($id);
+
+            $row = $this->build_spond_row(
+                $team->name,
+                $date_val,
+                $kick_off_time,
+                $venue,
+                $opp_club,
+                $opp_team,
+                $fixture_title
+            );
+
+            if ($row !== null) {
+                fputcsv($output, $row, ',', '"', "\\");
             }
-
-            fputcsv($output, [
-                $date_obj->format('d/m/Y'),
-                $start_time,
-                '01:00',
-                $date_obj->format('d/m/Y'),
-                $end_time,
-                $is_home ? 'Home match' : 'Away match',
-                $home_team,
-                $away_team,
-                $description,
-            ], ",", "\"", "\\");
         }
 
+        rewind($output);
+        $csv_data = stream_get_contents($output);
         fclose($output);
+
+        return $csv_data;
+    }
+
+    /**
+     * Send headers and stream Spond CSV file
+     *
+     * @param \WP_Term $team
+     */
+    public function stream_spond_csv(\WP_Term $team): void
+    {
+        $filename = sprintf('%s-for-spond.csv', sanitize_title($team->name));
+
+        if (!headers_sent()) {
+            header('Content-Type: text/csv; charset=utf-8');
+            header('Content-Disposition: attachment; filename="' . $filename . '"');
+            header('Pragma: no-cache');
+            header('Expires: 0');
+        }
+
+        echo $this->generate_spond_csv($team);
         exit;
+    }
+
+    /**
+     * Handle Spond Export
+     */
+    private function handle_spond_export()
+    {
+        $team_id = isset($_POST['team_id']) ? (int)$_POST['team_id'] : 0;
+        if (!$team_id) {
+            return;
+        }
+
+        $team = get_term($team_id, self::TAX_TEAM);
+        if (!$team || is_wp_error($team) || !($team instanceof \WP_Term)) {
+            return;
+        }
+
+        $this->stream_spond_csv($team);
     }
 
     /**
