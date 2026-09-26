@@ -864,6 +864,84 @@ class Fixtures
     }
 
     /**
+     * Build a single row for the Spond CSV export
+     *
+     * @param string $team_name
+     * @param string $date_val
+     * @param string $kick_off_time
+     * @param string $venue
+     * @param string $opp_club
+     * @param string $opp_team
+     * @param string $fixture_title
+     * @return array|null
+     */
+    public function build_spond_row(
+        string $team_name,
+        string $date_val,
+        string $kick_off_time,
+        string $venue,
+        string $opp_club,
+        string $opp_team,
+        string $fixture_title
+    ): ?array {
+        $date_obj = $this->clean_up_date($date_val);
+        if (!$date_obj) {
+            return null;
+        }
+
+        $formatted_date = $date_obj->format('d/m/Y');
+
+        $time_val = trim($kick_off_time);
+        if ($time_val === '' || $time_val === '00:00' || $time_val === '00:00:00') {
+            $start_time = '11:00';
+        } else {
+            $time_obj = DateTime::createFromFormat('H:i', $time_val) ?: DateTime::createFromFormat('H:i:s', $time_val);
+            if (!$time_obj) {
+                $timestamp = strtotime($time_val);
+                $start_time = ($timestamp !== false) ? date('H:i', $timestamp) : '11:00';
+            } else {
+                $start_time = $time_obj->format('H:i');
+            }
+        }
+
+        $start_dt = DateTime::createFromFormat('H:i', $start_time);
+        if ($start_dt) {
+            $start_dt->modify('+2 hours');
+            $end_time = $start_dt->format('H:i');
+        } else {
+            $end_time = '13:00';
+        }
+
+        $opp_club = trim($opp_club);
+        $opp_team = trim($opp_team);
+        $opposing_team = trim($opp_club . (!empty($opp_team) ? ' ' . $opp_team : ''));
+
+        $is_away = strtolower(trim($venue)) === 'away';
+        if ($is_away) {
+            $match_type = 'Away match';
+            $home_team  = $opposing_team;
+            $away_team  = trim($team_name);
+        } else {
+            $match_type = 'Home match';
+            $home_team  = trim($team_name);
+            $away_team  = $opposing_team;
+        }
+
+        return [
+            $formatted_date,
+            $start_time,
+            '01:00',
+            $formatted_date,
+            $end_time,
+            $match_type,
+            $home_team,
+            $away_team,
+            $fixture_title,
+            '',
+        ];
+    }
+
+    /**
      * Handle Spond Export
      */
     private function handle_spond_export()
@@ -906,68 +984,47 @@ class Fixtures
 
         $output = fopen('php://output', 'w');
 
+        fputcsv($output, [
+            'Start date',
+            'Start time',
+            'Meet up',
+            'End date',
+            'End time',
+            'Match type',
+            'Home team',
+            'Away team',
+            'Description',
+            'Place',
+        ], ',', '"', "\\");
+
         foreach ($fixtures as $fixture_post) {
             $id = $fixture_post->ID;
-            
-            // Get Competition
-            $comp_terms = wp_get_object_terms($id, self::TAX_COMPETITION);
-            $comp_name = !empty($comp_terms) ? $comp_terms[0]->name : '';
-            
-            // Skip Training/None if they match Symfony logic
-            if (in_array(strtolower($comp_name), ['training', 'none', 'pathway'])) {
-                continue;
-            }
 
-            $date_val = get_post_meta($id, self::META_DATE, true);
-            $time_val = get_post_meta($id, self::META_KICK_OFF_TIME, true);
-            if (empty($time_val)) {
-                $time_val = '00:00:00';
-            }
-            
-            $dt_string = $date_val . ' ' . $time_val;
-            $date_obj = date_create($dt_string);
-            
-            if (!$date_obj) {
-                continue;
-            }
+            $date_val      = (string) get_post_meta($id, self::META_DATE, true);
+            $kick_off_time = (string) get_post_meta($id, self::META_KICK_OFF_TIME, true);
+            $venue         = (string) get_post_meta($id, self::META_VENUE, true);
 
-            $is_midnight = $date_obj->format('H:i:s') === '00:00:00';
-            $start_time = $is_midnight ? '11:00' : $date_obj->format('H:i');
-            
-            $end_date_obj = clone $date_obj;
-            if ($is_midnight) {
-                $end_time = '13:00';
-            } else {
-                date_modify($end_date_obj, '+2 hours');
-                $end_time = $end_date_obj->format('H:i');
-            }
-
-            $venue = get_post_meta($id, self::META_VENUE, true);
-            $is_home = strtolower($venue) === 'home';
-            
             $opp_club_terms = wp_get_object_terms($id, self::TAX_OPPOSING_CLUB);
-            $opp_club = !empty($opp_club_terms) ? $opp_club_terms[0]->name : '';
+            $opp_club = !empty($opp_club_terms) && !is_wp_error($opp_club_terms) ? $opp_club_terms[0]->name : '';
 
-            $home_team = $is_home ? 'Norwich ' . $team->name : $opp_club . ' ' . $team->name;
-            $away_team = $is_home ? $opp_club . ' ' . $team->name : 'Norwich ' . $team->name;
+            $opp_team_terms = wp_get_object_terms($id, self::TAX_OPPOSING_TEAM);
+            $opp_team = !empty($opp_team_terms) && !is_wp_error($opp_team_terms) ? $opp_team_terms[0]->name : '';
 
-            $notes = get_post_meta($id, self::META_NOTES, true);
-            $description = $fixture_post->post_title;
-            if (!empty($notes)) {
-                $description .= ' - ' . $notes;
+            $fixture_title = !empty($fixture_post->post_title) ? $fixture_post->post_title : get_the_title($id);
+
+            $row = $this->build_spond_row(
+                $team->name,
+                $date_val,
+                $kick_off_time,
+                $venue,
+                $opp_club,
+                $opp_team,
+                $fixture_title
+            );
+
+            if ($row !== null) {
+                fputcsv($output, $row, ',', '"', "\\");
             }
-
-            fputcsv($output, [
-                $date_obj->format('d/m/Y'),
-                $start_time,
-                '01:00',
-                $date_obj->format('d/m/Y'),
-                $end_time,
-                $is_home ? 'Home match' : 'Away match',
-                $home_team,
-                $away_team,
-                $description,
-            ], ",", "\"", "\\");
         }
 
         fclose($output);

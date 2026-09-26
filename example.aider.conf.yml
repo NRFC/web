@@ -1,0 +1,8 @@
+# Point Aider directly to your local network Ollama server
+openai-api-base: http://localhost:11434
+
+# Use the 7B model tailored for your 980 Ti setup
+model: ollama_chat/qwen2.5-coder:7b-instruct-q4_K_M
+
+# Keep things stable for local generation
+stream: false
