@@ -55,3 +55,4 @@ skunk*
 sample_fixtures.csv
 vendor
 node_modules
+.aider*
