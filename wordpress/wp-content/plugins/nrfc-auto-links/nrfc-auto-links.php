@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Plugin Name: NRFC Auto Links
  * Description: Automatically links specific text patterns to their respective URLs.
@@ -16,37 +17,43 @@ require_once __DIR__ . '/src/class-nrfc-auto-links.php';
 /**
  * Settings Page
  */
-add_action( 'admin_menu', function() {
-	add_options_page(
-		'NRFC Auto Links Settings',
-		'NRFC Auto Links',
-		'manage_options',
-		'nrfc-auto-links',
-		'nrfc_auto_links_render_settings_page'
-	);
-});
+add_action(
+	'admin_menu',
+	function () {
+		add_options_page(
+			'NRFC Auto Links Settings',
+			'NRFC Auto Links',
+			'manage_options',
+			'nrfc-auto-links',
+			'nrfc_auto_links_render_settings_page'
+		);
+	}
+);
 
 /**
  * Register Settings
  */
-add_action( 'admin_init', function() {
-	register_setting( 'nrfc_auto_links_group', 'nrfc_auto_links_settings' );
-});
+add_action(
+	'admin_init',
+	function () {
+		register_setting( 'nrfc_auto_links_group', 'nrfc_auto_links_settings' );
+	}
+);
 
 /**
  * Render Settings Page
  */
 function nrfc_auto_links_render_settings_page() {
-	$settings = get_option( 'nrfc_auto_links_settings', [] );
-	$rules    = isset( $settings['rules'] ) ? $settings['rules'] : [];
+	$settings = get_option( 'nrfc_auto_links_settings', array() );
+	$rules    = isset( $settings['rules'] ) ? $settings['rules'] : array();
 
 	// Handle adding a new rule
 	if ( isset( $_POST['nrfc_add_rule'] ) && check_admin_referer( 'nrfc_auto_links_action', 'nrfc_auto_links_nonce' ) ) {
-		$rules[] = [
+		$rules[]           = array(
 			'text'         => '',
 			'link'         => '',
-			'target_pages' => [],
-		];
+			'target_pages' => array(),
+		);
 		$settings['rules'] = $rules;
 		update_option( 'nrfc_auto_links_settings', $settings );
 	}
@@ -56,7 +63,7 @@ function nrfc_auto_links_render_settings_page() {
 		$index = intval( $_GET['delete_rule'] );
 		if ( isset( $rules[ $index ] ) ) {
 			unset( $rules[ $index ] );
-			$rules = array_values( $rules );
+			$rules             = array_values( $rules );
 			$settings['rules'] = $rules;
 			update_option( 'nrfc_auto_links_settings', $settings );
 		}
@@ -138,7 +145,7 @@ function nrfc_auto_links_filter_content( $content ) {
 		return $content;
 	}
 
-	$settings = get_option( 'nrfc_auto_links_settings', [] );
+	$settings = get_option( 'nrfc_auto_links_settings', array() );
 	$rules    = NRFC_Auto_Links_Rule_Engine::rules_from_settings( $settings );
 
 	$current_page_id = get_the_ID();

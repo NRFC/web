@@ -5,6 +5,13 @@
   "scripts": {
     "test": "bin/test-all.sh",
     "test:verbose": "bin/test-all.sh verbose"
+  },
+  "config": {
+    "allow-plugins": {
+      "dealerdirect/phpcodesniffer-composer-installer": true
+    }
+  },
+  "require-dev": {
+    "wp-coding-standards/wpcs": "^3.4"
   }
 }
-

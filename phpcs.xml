@@ -1,0 +1,63 @@
+<?xml version="1.0"?>
+<ruleset name="Project Coding Standard"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/PHPCSStandards/PHP_CodeSniffer/master/phpcs.xsd"
+>
+    <description>Wordpress coding standard configuration.</description>
+    <!-- Set the coding standard -->
+    <rule ref="WordPress">
+        <!-- Exclude specific rules -->
+        <exclude name="Generic.Commenting.DocComment"/>
+        <exclude name="Squiz.Commenting.ClassComment"/>
+        <exclude name="Squiz.Commenting.FileComment"/>
+        <exclude name="Universal.Operators.DisallowShortTernary"/>
+        <exclude name="WordPress.Files.FileName"/>
+        <exclude name="WordPress.PHP.YodaConditions"/>
+    </rule>
+
+    <!-- Add the text domain -->
+    <rule ref="WordPress.WP.I18n">
+        <properties>
+            <property name="text_domain" type="array">
+                <element value="my-plugin"/>
+            </property>
+        </properties>
+    </rule>
+
+    <!-- Add custom capabilities -->
+    <rule ref="WordPress.WP.Capabilities">
+        <properties>
+            <property name="custom_capabilities" type="array">
+                <element value="manage_my_plugin"/>
+            </property>
+        </properties>
+    </rule>
+
+    <!-- Add custom sanitization functions -->
+    <rule ref="WordPress.Security.ValidatedSanitizedInput">
+        <properties>
+            <property name="customSanitizingFunctions" type="array">
+                <element value="my_plugin_clean_string"/>
+            </property>
+        </properties>
+    </rule>
+
+    <!-- Include these paths for scanning -->
+    <file>wordpress/wp-content/plugins/nrfc-auto-links</file>
+    <file>wordpress/wp-content/plugins/nrfc-fixtures</file>
+    <file>wordpress/wp-content/plugins/nrfc-match-reports</file>
+    <file>wordpress/wp-content/plugins/nrfc-person-directory</file>
+    <file>wordpress/wp-content/plugins/nrfc-sponsor-management</file>
+
+    <!-- Exclude third-party or build directories -->
+    <exclude-pattern>*/vendor/*</exclude-pattern>
+    <exclude-pattern>*/var/*</exclude-pattern>
+    <exclude-pattern>*/tests/*</exclude-pattern>
+
+    <!-- Show progress and sniff codes in report -->
+    <arg value="p"/>
+    <arg name="colors"/>
+    <arg name="extensions" value="php,inc"/>
+    <arg name="parallel" value="80"/>
+    <arg name="cache" value=".phpcs.cache"/>
+</ruleset>

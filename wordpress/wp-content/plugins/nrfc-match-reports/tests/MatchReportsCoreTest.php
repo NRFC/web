@@ -10,94 +10,88 @@ use NRFCMatchReports\TestWpState;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 
-final class MatchReportsCoreTest extends TestCase
-{
-    private MatchReports $match_reports;
-    private LatestMatchReportsWidget $widget;
+final class MatchReportsCoreTest extends TestCase {
 
-    protected function setUp(): void
-    {
-        TestWpState::reset();
-        $_POST = [];
+	private MatchReports $match_reports;
+	private LatestMatchReportsWidget $widget;
 
-        $match_reports_reflection = new ReflectionClass(MatchReports::class);
-        $this->match_reports = $match_reports_reflection->newInstanceWithoutConstructor();
+	protected function setUp(): void {
+		TestWpState::reset();
+		$_POST = array();
 
-        $widget_reflection = new ReflectionClass(LatestMatchReportsWidget::class);
-        $this->widget = $widget_reflection->newInstanceWithoutConstructor();
-    }
+		$match_reports_reflection = new ReflectionClass( MatchReports::class );
+		$this->match_reports      = $match_reports_reflection->newInstanceWithoutConstructor();
 
-    public function test_add_admin_columns_inserts_fixture_and_score_after_title(): void
-    {
-        $columns = [
-            'cb' => '<input type="checkbox" />',
-            'title' => 'Title',
-            'date' => 'Date',
-        ];
+		$widget_reflection = new ReflectionClass( LatestMatchReportsWidget::class );
+		$this->widget      = $widget_reflection->newInstanceWithoutConstructor();
+	}
 
-        $result = $this->match_reports->add_admin_columns($columns);
+	public function test_add_admin_columns_inserts_fixture_and_score_after_title(): void {
+		$columns = array(
+			'cb'    => '<input type="checkbox" />',
+			'title' => 'Title',
+			'date'  => 'Date',
+		);
 
-        self::assertSame(['cb', 'title', 'fixture', 'score', 'date'], array_keys($result));
-        self::assertSame('Fixture', $result['fixture']);
-        self::assertSame('Score', $result['score']);
-    }
+		$result = $this->match_reports->add_admin_columns( $columns );
 
-    public function test_widget_update_sanitizes_title_and_count(): void
-    {
-        $new_instance = [
-            'title' => '  <b>Latest Reports</b>  ',
-            'count' => '-12',
-        ];
+		self::assertSame( array( 'cb', 'title', 'fixture', 'score', 'date' ), array_keys( $result ) );
+		self::assertSame( 'Fixture', $result['fixture'] );
+		self::assertSame( 'Score', $result['score'] );
+	}
 
-        $result = $this->widget->update($new_instance, []);
+	public function test_widget_update_sanitizes_title_and_count(): void {
+		$new_instance = array(
+			'title' => '  <b>Latest Reports</b>  ',
+			'count' => '-12',
+		);
 
-        self::assertSame('Latest Reports', $result['title']);
-        self::assertSame(12, $result['count']);
-    }
+		$result = $this->widget->update( $new_instance, array() );
 
-    public function test_save_match_report_meta_returns_early_when_nonce_invalid(): void
-    {
-        TestWpState::$nonce_valid = false;
+		self::assertSame( 'Latest Reports', $result['title'] );
+		self::assertSame( 12, $result['count'] );
+	}
 
-        $_POST = [
-            MatchReports::NONCE_METABOX => 'invalid',
-            'match_report_fixture_id' => '42',
-            'match_report_score_for' => '21',
-            'match_report_score_against' => '10',
-            'match_report_gallery' => '1,2,3',
-        ];
+	public function test_save_match_report_meta_returns_early_when_nonce_invalid(): void {
+		TestWpState::$nonce_valid = false;
 
-        $this->match_reports->save_match_report_meta(99);
+		$_POST = array(
+			MatchReports::NONCE_METABOX  => 'invalid',
+			'match_report_fixture_id'    => '42',
+			'match_report_score_for'     => '21',
+			'match_report_score_against' => '10',
+			'match_report_gallery'       => '1,2,3',
+		);
 
-        self::assertSame([], TestWpState::$updated_meta);
-    }
+		$this->match_reports->save_match_report_meta( 99 );
 
-    public function test_save_match_report_meta_updates_expected_fields_when_valid(): void
-    {
-        $_POST = [
-            MatchReports::NONCE_METABOX => 'valid',
-            'match_report_fixture_id' => ' 42 ',
-            'match_report_score_for' => ' 33 ',
-            'match_report_score_against' => ' 17 ',
-            'match_report_gallery' => ' 15,16 ',
-        ];
+		self::assertSame( array(), TestWpState::$updated_meta );
+	}
 
-        $this->match_reports->save_match_report_meta(101);
+	public function test_save_match_report_meta_updates_expected_fields_when_valid(): void {
+		$_POST = array(
+			MatchReports::NONCE_METABOX  => 'valid',
+			'match_report_fixture_id'    => ' 42 ',
+			'match_report_score_for'     => ' 33 ',
+			'match_report_score_against' => ' 17 ',
+			'match_report_gallery'       => ' 15,16 ',
+		);
 
-        self::assertCount(4, TestWpState::$updated_meta);
-        self::assertSame(
-            [
-                MatchReports::META_FIXTURE_ID,
-                MatchReports::META_SCORE_FOR,
-                MatchReports::META_SCORE_AGAINST,
-                MatchReports::META_GALLERY,
-            ],
-            array_column(TestWpState::$updated_meta, 'meta_key')
-        );
-        self::assertSame(
-            ['42', '33', '17', '15,16'],
-            array_column(TestWpState::$updated_meta, 'meta_value')
-        );
-    }
+		$this->match_reports->save_match_report_meta( 101 );
+
+		self::assertCount( 4, TestWpState::$updated_meta );
+		self::assertSame(
+			array(
+				MatchReports::META_FIXTURE_ID,
+				MatchReports::META_SCORE_FOR,
+				MatchReports::META_SCORE_AGAINST,
+				MatchReports::META_GALLERY,
+			),
+			array_column( TestWpState::$updated_meta, 'meta_key' )
+		);
+		self::assertSame(
+			array( '42', '33', '17', '15,16' ),
+			array_column( TestWpState::$updated_meta, 'meta_value' )
+		);
+	}
 }
-
