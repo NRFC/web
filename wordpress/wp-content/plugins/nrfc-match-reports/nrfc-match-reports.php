@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Plugin Name: NRFC Match Reports
  * Description: Adds a "Match Report" custom post type linked to Fixtures.
@@ -7,12 +8,12 @@
  * License: GPL2+
  */
 
-if (!defined('ABSPATH')) {
-    exit;
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
 }
 
-if (!class_exists('NRFCMatchReports\\MatchReports')) {
-    require_once __DIR__ . '/src/MatchReports.php';
+if ( ! class_exists( 'NRFCMatchReports\\MatchReports' ) ) {
+	require_once __DIR__ . '/src/MatchReports.php';
 }
 
 use NRFCMatchReports\MatchReports;
@@ -21,5 +22,5 @@ use NRFCMatchReports\MatchReports;
 $match_reports_plugin = new MatchReports();
 
 // Register activation/deactivation hooks
-register_activation_hook(__FILE__, array($match_reports_plugin, 'activate'));
-register_deactivation_hook(__FILE__, array($match_reports_plugin, 'deactivate'));
+register_activation_hook( __FILE__, array( $match_reports_plugin, 'activate' ) );
+register_deactivation_hook( __FILE__, array( $match_reports_plugin, 'deactivate' ) );

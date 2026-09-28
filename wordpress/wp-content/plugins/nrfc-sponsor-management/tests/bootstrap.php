@@ -3,76 +3,67 @@
 declare(strict_types=1);
 
 namespace {
-    if (!defined('ABSPATH')) {
-        define('ABSPATH', __DIR__ . '/../../../../');
-    }
+	if ( ! defined( 'ABSPATH' ) ) {
+		define( 'ABSPATH', __DIR__ . '/../../../../' );
+	}
 
-    if (!class_exists('WP_Widget')) {
-        class WP_Widget
-        {
-            public function __construct(...$args)
-            {
-            }
-        }
-    }
+	if ( ! class_exists( 'WP_Widget' ) ) {
+		class WP_Widget {
+
+			public function __construct( ...$args ) {
+			}
+		}
+	}
 }
 
 namespace SponsorManagement {
-    final class TestWpState
-    {
-        public static bool $nonce_valid = true;
-        public static bool $can_edit_post = true;
+	final class TestWpState {
 
-        /** @var array<int, array{post_id:int|string, meta_key:string, meta_value:string}> */
-        public static array $updated_meta = [];
+		public static bool $nonce_valid   = true;
+		public static bool $can_edit_post = true;
 
-        public static function reset(): void
-        {
-            self::$nonce_valid = true;
-            self::$can_edit_post = true;
-            self::$updated_meta = [];
-        }
-    }
+		/** @var array<int, array{post_id:int|string, meta_key:string, meta_value:string}> */
+		public static array $updated_meta = array();
 
-    function wp_verify_nonce($nonce, $action): bool
-    {
-        return TestWpState::$nonce_valid;
-    }
+		public static function reset(): void {
+			self::$nonce_valid   = true;
+			self::$can_edit_post = true;
+			self::$updated_meta  = array();
+		}
+	}
 
-    function current_user_can($capability, $post_id = null): bool
-    {
-        return TestWpState::$can_edit_post;
-    }
+	function wp_verify_nonce( $nonce, $action ): bool {
+		return TestWpState::$nonce_valid;
+	}
 
-    function sanitize_text_field($value): string
-    {
-        return trim(strip_tags((string) $value));
-    }
+	function current_user_can( $capability, $post_id = null ): bool {
+		return TestWpState::$can_edit_post;
+	}
 
-    function esc_url_raw($value): string
-    {
-        return trim((string) $value);
-    }
+	function sanitize_text_field( $value ): string {
+		return trim( strip_tags( (string) $value ) );
+	}
 
-    function update_post_meta($post_id, string $meta_key, $meta_value): bool
-    {
-        TestWpState::$updated_meta[] = [
-            'post_id' => $post_id,
-            'meta_key' => $meta_key,
-            'meta_value' => (string) $meta_value,
-        ];
+	function esc_url_raw( $value ): string {
+		return trim( (string) $value );
+	}
 
-        return true;
-    }
+	function update_post_meta( $post_id, string $meta_key, $meta_value ): bool {
+		TestWpState::$updated_meta[] = array(
+			'post_id'    => $post_id,
+			'meta_key'   => $meta_key,
+			'meta_value' => (string) $meta_value,
+		);
 
-    function __(string $text, ?string $domain = null): string
-    {
-        return $text;
-    }
+		return true;
+	}
+
+	function __( string $text, ?string $domain = null ): string {
+		return $text;
+	}
 }
 
 namespace {
-    require_once dirname(__DIR__) . '/vendor/autoload.php';
-    require_once dirname(__DIR__) . '/src/SponsorManagement.php';
+	require_once dirname( __DIR__ ) . '/vendor/autoload.php';
+	require_once dirname( __DIR__ ) . '/src/SponsorManagement.php';
 }
-

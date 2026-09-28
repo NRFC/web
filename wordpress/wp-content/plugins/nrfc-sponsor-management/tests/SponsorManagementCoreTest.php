@@ -11,98 +11,90 @@ use SponsorManagement\SponsorManagement;
 use SponsorManagement\SponsorTypeWidget;
 use SponsorManagement\TestWpState;
 
-final class SponsorManagementCoreTest extends TestCase
-{
-    private SponsorManagement $sponsor_management;
-    private SponsorTypeWidget $widget;
+final class SponsorManagementCoreTest extends TestCase {
 
-    protected function setUp(): void
-    {
-        TestWpState::reset();
-        $_POST = [];
+	private SponsorManagement $sponsor_management;
+	private SponsorTypeWidget $widget;
 
-        $sponsor_management_reflection = new ReflectionClass(SponsorManagement::class);
-        $this->sponsor_management = $sponsor_management_reflection->newInstanceWithoutConstructor();
+	protected function setUp(): void {
+		TestWpState::reset();
+		$_POST = array();
 
-        $widget_reflection = new ReflectionClass(SponsorTypeWidget::class);
-        $this->widget = $widget_reflection->newInstanceWithoutConstructor();
-    }
+		$sponsor_management_reflection = new ReflectionClass( SponsorManagement::class );
+		$this->sponsor_management      = $sponsor_management_reflection->newInstanceWithoutConstructor();
 
-    public function test_add_admin_columns_inserts_type_and_url_after_title(): void
-    {
-        $columns = [
-            'cb' => '<input type="checkbox" />',
-            'title' => 'Title',
-            'date' => 'Date',
-        ];
+		$widget_reflection = new ReflectionClass( SponsorTypeWidget::class );
+		$this->widget      = $widget_reflection->newInstanceWithoutConstructor();
+	}
 
-        $result = $this->sponsor_management->addAdminColumns($columns);
+	public function test_add_admin_columns_inserts_type_and_url_after_title(): void {
+		$columns = array(
+			'cb'    => '<input type="checkbox" />',
+			'title' => 'Title',
+			'date'  => 'Date',
+		);
 
-        self::assertSame(['cb', 'title', 'sponsor_type', 'sponsor_url', 'date'], array_keys($result));
-        self::assertSame('Type', $result['sponsor_type']);
-        self::assertSame('URL', $result['sponsor_url']);
-    }
+		$result = $this->sponsor_management->addAdminColumns( $columns );
 
-    public function test_widget_update_sanitizes_and_validates_settings(): void
-    {
-        $new_instance = [
-            'title' => '  <b>Main Sponsors</b>  ',
-            'type' => 'invalid-type',
-            'show_titles' => '1',
-            'columns' => '9',
-        ];
+		self::assertSame( array( 'cb', 'title', 'sponsor_type', 'sponsor_url', 'date' ), array_keys( $result ) );
+		self::assertSame( 'Type', $result['sponsor_type'] );
+		self::assertSame( 'URL', $result['sponsor_url'] );
+	}
 
-        $result = $this->widget->update($new_instance, []);
+	public function test_widget_update_sanitizes_and_validates_settings(): void {
+		$new_instance = array(
+			'title'       => '  <b>Main Sponsors</b>  ',
+			'type'        => 'invalid-type',
+			'show_titles' => '1',
+			'columns'     => '9',
+		);
 
-        self::assertSame('Main Sponsors', $result['title']);
-        self::assertSame('', $result['type']);
-        self::assertSame(1, $result['show_titles']);
-        self::assertSame(6, $result['columns']);
-    }
+		$result = $this->widget->update( $new_instance, array() );
 
-    public function test_detect_delimiter_selects_expected_separator(): void
-    {
-        $detect_delimiter = Closure::bind(
-            fn (string $line): string => $this->detectDelimiter($line),
-            $this->sponsor_management,
-            SponsorManagement::class
-        );
+		self::assertSame( 'Main Sponsors', $result['title'] );
+		self::assertSame( '', $result['type'] );
+		self::assertSame( 1, $result['show_titles'] );
+		self::assertSame( 6, $result['columns'] );
+	}
 
-        self::assertIsCallable($detect_delimiter);
-        self::assertSame(',', $detect_delimiter("name,url,type\n"));
-        self::assertSame(';', $detect_delimiter("name;url;type\n"));
-        self::assertSame("\t", $detect_delimiter("name\turl\ttype\n"));
-    }
+	public function test_detect_delimiter_selects_expected_separator(): void {
+		$detect_delimiter = Closure::bind(
+			fn ( string $line ): string => $this->detectDelimiter( $line ),
+			$this->sponsor_management,
+			SponsorManagement::class
+		);
 
-    public function test_save_sponsor_meta_returns_early_when_nonce_invalid(): void
-    {
-        TestWpState::$nonce_valid = false;
+		self::assertIsCallable( $detect_delimiter );
+		self::assertSame( ',', $detect_delimiter( "name,url,type\n" ) );
+		self::assertSame( ';', $detect_delimiter( "name;url;type\n" ) );
+		self::assertSame( "\t", $detect_delimiter( "name\turl\ttype\n" ) );
+	}
 
-        $_POST = [
-            'sponsor_details_nonce' => 'invalid',
-            'sponsor_url' => 'https://example.com',
-            'sponsor_type' => 'gold',
-        ];
+	public function test_save_sponsor_meta_returns_early_when_nonce_invalid(): void {
+		TestWpState::$nonce_valid = false;
 
-        $this->sponsor_management->saveSponsorMeta(42);
+		$_POST = array(
+			'sponsor_details_nonce' => 'invalid',
+			'sponsor_url'           => 'https://example.com',
+			'sponsor_type'          => 'gold',
+		);
 
-        self::assertSame([], TestWpState::$updated_meta);
-    }
+		$this->sponsor_management->saveSponsorMeta( 42 );
 
-    public function test_save_sponsor_meta_updates_url_and_type_when_valid(): void
-    {
-        $_POST = [
-            'sponsor_details_nonce' => 'valid',
-            'sponsor_url' => ' https://example.com/sponsor ',
-            'sponsor_type' => ' silver ',
-        ];
+		self::assertSame( array(), TestWpState::$updated_meta );
+	}
 
-        $this->sponsor_management->saveSponsorMeta(77);
+	public function test_save_sponsor_meta_updates_url_and_type_when_valid(): void {
+		$_POST = array(
+			'sponsor_details_nonce' => 'valid',
+			'sponsor_url'           => ' https://example.com/sponsor ',
+			'sponsor_type'          => ' silver ',
+		);
 
-        self::assertCount(2, TestWpState::$updated_meta);
-        self::assertSame(['_sponsor_url', '_sponsor_type'], array_column(TestWpState::$updated_meta, 'meta_key'));
-        self::assertSame(['https://example.com/sponsor', 'silver'], array_column(TestWpState::$updated_meta, 'meta_value'));
-    }
+		$this->sponsor_management->saveSponsorMeta( 77 );
+
+		self::assertCount( 2, TestWpState::$updated_meta );
+		self::assertSame( array( '_sponsor_url', '_sponsor_type' ), array_column( TestWpState::$updated_meta, 'meta_key' ) );
+		self::assertSame( array( 'https://example.com/sponsor', 'silver' ), array_column( TestWpState::$updated_meta, 'meta_value' ) );
+	}
 }
-
-
