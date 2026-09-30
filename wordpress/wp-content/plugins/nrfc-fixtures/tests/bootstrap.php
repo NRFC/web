@@ -109,6 +109,12 @@ class FixturesTestState
     /** @var array<int, array{regex: string, query: string, after: string}> */
     public static array $rewrite_rules = [];
 
+    /** @var array<string, mixed>|null */
+    public static ?array $last_dropdown_categories_args = null;
+
+    /** @var array<string, object> */
+    public static array $taxonomies = [];
+
     public static ?int $last_status_header = null;
     public static ?string $last_die_message = null;
 
@@ -121,6 +127,8 @@ class FixturesTestState
         self::$query_vars = [];
         self::$registered_rest_routes = [];
         self::$rewrite_rules = [];
+        self::$last_dropdown_categories_args = null;
+        self::$taxonomies = [];
         self::$last_status_header = null;
         self::$last_die_message = null;
     }
@@ -200,6 +208,21 @@ if (!function_exists('get_term_by')) {
             }
         }
         return null;
+    }
+}
+
+if (!function_exists('get_taxonomy')) {
+    function get_taxonomy(string $taxonomy): ?object
+    {
+        return FixturesTestState::$taxonomies[$taxonomy] ?? null;
+    }
+}
+
+if (!function_exists('wp_dropdown_categories')) {
+    function wp_dropdown_categories(array|string $args = ''): string
+    {
+        FixturesTestState::$last_dropdown_categories_args = is_array($args) ? $args : [];
+        return '';
     }
 }
 
@@ -368,4 +391,3 @@ if (!function_exists('submit_button')) {
 
 require_once dirname(__DIR__) . '/vendor/autoload.php';
 require_once dirname(__DIR__) . '/src/Fixtures.php';
-

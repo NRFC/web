@@ -55,7 +55,7 @@ skunk*
 sample_fixtures.csv
 vendor
 node_modules
+<<<<<<< HEAD
 
 # ai config
-.aider.conf.yml
 .aider*

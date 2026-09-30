@@ -292,6 +292,41 @@ final class FixturesPrivateMethodsTest extends TestCase
         self::assertStringContainsString('http://example.org/wp-json/nrfc-fixtures/v1/export?team=under-15-boys', $output);
     }
 
+    public function test_filter_by_team_renders_dropdown_for_fixtures(): void
+    {
+        FixturesTestState::$taxonomies[Fixtures::TAX_TEAM] = (object)[
+            'labels' => (object)[
+                'all_items' => 'All Teams',
+            ],
+        ];
+
+        $this->fixtures->filter_by_team(Fixtures::CPT);
+
+        self::assertNotNull(FixturesTestState::$last_dropdown_categories_args);
+        self::assertSame('All Teams', FixturesTestState::$last_dropdown_categories_args['show_option_all']);
+        self::assertSame(Fixtures::TAX_TEAM, FixturesTestState::$last_dropdown_categories_args['taxonomy']);
+        self::assertSame(Fixtures::TAX_TEAM, FixturesTestState::$last_dropdown_categories_args['name']);
+        self::assertSame('slug', FixturesTestState::$last_dropdown_categories_args['value_field']);
+        self::assertSame('', FixturesTestState::$last_dropdown_categories_args['selected']);
+    }
+
+    public function test_filter_by_team_respects_selected_team(): void
+    {
+        $_GET[Fixtures::TAX_TEAM] = '1st-xv';
+
+        $this->fixtures->filter_by_team(Fixtures::CPT);
+
+        self::assertNotNull(FixturesTestState::$last_dropdown_categories_args);
+        self::assertSame('1st-xv', FixturesTestState::$last_dropdown_categories_args['selected']);
+    }
+
+    public function test_filter_by_team_ignores_other_post_types(): void
+    {
+        $this->fixtures->filter_by_team('post');
+
+        self::assertNull(FixturesTestState::$last_dropdown_categories_args);
+    }
+
     private function invokePrivateMethod(string $method_name, mixed ...$arguments): mixed
     {
         $invoker = \Closure::bind(
@@ -305,6 +340,3 @@ final class FixturesPrivateMethodsTest extends TestCase
         return $invoker($this->fixtures, $method_name, $arguments);
     }
 }
-
-
-

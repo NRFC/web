@@ -46,6 +46,7 @@ class Fixtures
         add_action('manage_' . self::CPT . '_posts_custom_column', [$this, 'render_admin_columns'], 10, 2);
         add_filter('manage_edit-' . self::CPT . '_sortable_columns', [$this, 'register_sortable_columns']);
         add_action('pre_get_posts', [$this, 'handle_admin_sorting']);
+        add_action('restrict_manage_posts', [$this, 'filter_by_team'], 10, 2);
 
         // Add admin pages
         add_action('admin_menu', [$this, 'register_admin_pages']);
@@ -866,6 +867,35 @@ class Fixtures
     }
 
     /**
+     * Filter fixtures by team taxonomy in the admin fixture list
+     */
+    public function filter_by_team(?string $post_type = null, string $which = 'top'): void
+    {
+        global $typenow;
+
+        $current_post_type = !empty($post_type) ? $post_type : $typenow;
+        if ($current_post_type !== self::CPT) {
+            return;
+        }
+
+        $selected = isset($_GET[self::TAX_TEAM]) ? sanitize_text_field((string)$_GET[self::TAX_TEAM]) : '';
+        $all_label = __('All Teams', 'nrfc-fixtures');
+
+        wp_dropdown_categories([
+            'show_option_all' => $all_label,
+            'taxonomy'        => self::TAX_TEAM,
+            'name'            => self::TAX_TEAM,
+            'orderby'         => 'name',
+            'selected'        => $selected,
+            'hierarchical'    => true,
+            'depth'           => 3,
+            'show_count'      => true,
+            'hide_empty'      => false,
+            'value_field'     => 'slug',
+        ]);
+    }
+
+    /**
      * Add Admin Columns
      */
     public function add_admin_columns($columns): array {
@@ -943,7 +973,7 @@ class Fixtures
         echo '<ul>';
         echo '<li><code>date</code> (YYYY-MM-DD, ' . esc_html__('required', 'nrfc-fixtures') . ')</li>';
         echo '<li><code>team</code> (' . esc_html__('required', 'nrfc-fixtures') . ')</li>';
-        echo '<li><code>opposing_club</code> (' . esc_html__('required', 'nrfc-fixtures') . ')</li>';
+        echo '<li><code>opposing_club</code> (optional)</li>';
         echo '<li><code>opposing_team</code> (optional)</li>';
         echo '<li><code>competition_type</code> (optional)</li>';
         echo '<li><code>kick_off_time</code> (HH:MM, optional)</li>';
@@ -1298,7 +1328,7 @@ class Fixtures
         }
 
         // Check required columns
-        foreach (['date', 'team', 'opposing_club'] as $req) {
+        foreach (['date', 'team'] as $req) {
             if (!isset($map[$req])) {
                 fclose($fh);
                 return new \WP_Error('missing_column', sprintf(__('CSV must include a "%s" column.', 'nrfc-fixtures'), $req));
@@ -1329,7 +1359,7 @@ class Fixtures
 
             // Get Term IDs
             $team_id           = $this->get_term($this->normaliseTeam($data['team']), self::TAX_TEAM);
-            $opp_club_id       = $this->get_term($data['opposing_club'], self::TAX_OPPOSING_CLUB);
+            $opp_club_id       = !empty($data['opposing_team']) ? $this->get_term($data['opposing_club'], self::TAX_OPPOSING_CLUB) : null;
             $opp_team_id       = !empty($data['opposing_team']) ? $this->get_term($data['opposing_team'], self::TAX_OPPOSING_TEAM) : null;
             $comp_type_id      = !empty($data['competition_type']) ? $this->get_term($data['competition_type'], self::TAX_COMPETITION) : null;
 
