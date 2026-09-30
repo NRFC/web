@@ -4,6 +4,7 @@ namespace NRFCFixtures;
 
 use DateTime;
 use JetBrains\PhpStorm\NoReturn;
+use WP_Post;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -1758,6 +1759,41 @@ class Fixtures {
 		<?php
 		return ob_get_clean();
 	}
+
+    public function check_current_user_and_role(): bool {
+        $current_user = wp_get_current_user();
+        if ( 0 === $current_user->ID ) {
+            echo 'No user is currently logged in (Guest).';
+            return false;
+        }
+
+        $roles = $current_user->roles;
+        /*
+         super_admin	Multisite networks only (manages network-wide settings)
+	administrator	Single site full control (plugins, themes, users, settings)
+	editor	Manages and publishes all content (posts, pages, comments)
+	author	Publishes and manages only their own posts
+	contributor	Writes/edits their own drafts, but cannot publish them
+	subscriber
+         */
+
+        if (in_array('administrator', $current_user->roles)) {
+            return true;
+        }
+
+        $post = get_queried_object();
+        if ( ! $post instanceof WP_Post ) {
+            return false;
+        }
+        $post_id = $post->ID;
+        $meta_value = get_post_meta( $post_id, self::TAX_TEAM, true );
+
+        // check user role vs team id
+
+        // Output the information for testing
+//        echo 'Logged in as: ' . esc_html( $username ) . ' (ID: ' . intval( $user_id ) . ')<br>';
+//        echo 'Assigned Roles: ' . esc_html( implode( ', ', $roles ) );
+    }
 
 	/**
 	 * Register the fixtures widget
