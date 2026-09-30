@@ -59,3 +59,4 @@ node_modules
 
 # ai config
 .aider*
+.idea/phpunit.xml
