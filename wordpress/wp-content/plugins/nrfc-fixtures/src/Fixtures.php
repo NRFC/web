@@ -943,7 +943,7 @@ class Fixtures
         echo '<ul>';
         echo '<li><code>date</code> (YYYY-MM-DD, ' . esc_html__('required', 'nrfc-fixtures') . ')</li>';
         echo '<li><code>team</code> (' . esc_html__('required', 'nrfc-fixtures') . ')</li>';
-        echo '<li><code>opposing_club</code> (' . esc_html__('required', 'nrfc-fixtures') . ')</li>';
+        echo '<li><code>opposing_club</code> (optional)</li>';
         echo '<li><code>opposing_team</code> (optional)</li>';
         echo '<li><code>competition_type</code> (optional)</li>';
         echo '<li><code>kick_off_time</code> (HH:MM, optional)</li>';
@@ -1298,7 +1298,7 @@ class Fixtures
         }
 
         // Check required columns
-        foreach (['date', 'team', 'opposing_club'] as $req) {
+        foreach (['date', 'team'] as $req) {
             if (!isset($map[$req])) {
                 fclose($fh);
                 return new \WP_Error('missing_column', sprintf(__('CSV must include a "%s" column.', 'nrfc-fixtures'), $req));
@@ -1329,7 +1329,7 @@ class Fixtures
 
             // Get Term IDs
             $team_id           = $this->get_term($this->normaliseTeam($data['team']), self::TAX_TEAM);
-            $opp_club_id       = $this->get_term($data['opposing_club'], self::TAX_OPPOSING_CLUB);
+            $opp_club_id       = !empty($data['opposing_team']) ? $this->get_term($data['opposing_club'], self::TAX_OPPOSING_CLUB) : null;
             $opp_team_id       = !empty($data['opposing_team']) ? $this->get_term($data['opposing_team'], self::TAX_OPPOSING_TEAM) : null;
             $comp_type_id      = !empty($data['competition_type']) ? $this->get_term($data['competition_type'], self::TAX_COMPETITION) : null;
 
