@@ -120,3 +120,22 @@ function nrfc_register_header_sponsors_widget() {
 	register_widget( 'NRFC_Header_Sponsors_Widget' );
 }
 add_action( 'widgets_init', 'nrfc_register_header_sponsors_widget' );
+
+function remove_admin_bar_for_non_admins() {
+    if (!current_user_can('administrator')) {
+        show_admin_bar(false);
+    }
+}
+add_action('after_setup_theme', 'remove_admin_bar_for_non_admins');
+
+function redirect_users_to_homepage($redirect_to, $request, $user) {
+    if (isset($user->ID)) {
+        if (in_array('administrator', $user->roles)) {
+            return $redirect_to;
+        }
+        return home_url('/');
+    }
+
+    return $redirect_to;
+}
+add_filter('login_redirect', 'redirect_users_to_homepage', 10, 3);
