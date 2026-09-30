@@ -45,7 +45,8 @@ WORKDIR /var/www/html
 FROM base as dev
 
 # Install Xdebug for development
-RUN pecl install xdebug
+RUN pecl install xdebug \
+    && docker-php-ext-enable xdebug
 
 # Copy development configuration
 COPY docker/development/xdebug.ini /usr/local/etc/php/conf.d/xdebug.ini

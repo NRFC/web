@@ -28,3 +28,25 @@ rsync -a --progress wordpress/wp-content/themes/nrfc nrfc:/opt/docker/www-wp/the
 ## Attaching a debugger
 
 The system is running in a container, so you need to connect to it from your IDE. The container is configured to allow Xdebug connections on port 9003.
+
+## XDEBUG
+
+1. Set the Xdebug port
+    1. Go to: Settings/Preferences → PHP → Debug
+    1. Set:
+         ``` text
+         Xdebug port: 9003
+         Can accept external connections: true
+         ``` 
+1. Add a PHP server
+   1. Go to: Settings/Preferences → PHP → Servers
+   1. Click + to add a new server.
+      1. Name: nrfc-wp-dev-web
+      1. Host: localhost
+      1. Port: 8015
+      1. Debugger: Xdebug
+   1. Use path mappings
+      1. Local path:    <your project>/wordpress
+      1. Remote path:   /var/www/html
+      2. 
+
