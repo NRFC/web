@@ -50,3 +50,4 @@
         document.getElementById('cookie-banner').style.display = 'none';
     }
 </script>
+<script defer src="https://umami.norwichrugby.com/script.js" data-website-id="58364de8-2737-40a3-b6b2-5e4a559f65b7"></script>
