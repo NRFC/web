@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -e
 
 SCRIPT_NAME=$(basename "$0")
 if command -v realpath &> /dev/null; then
@@ -94,9 +94,15 @@ start_environment() {
     print_status "Waiting for database to be ready..."
     sleep 15
 
+    [[ -f "$PROJECT_ROOT/wordpress/wp-config.php" ]] || cp "$PROJECT_ROOT/wordpress/wp-config.php.dist" "$PROJECT_ROOT/wordpress/wp-config.php" || {
+        print_error "Failed to copy in default wp-config.php"
+        return 1
+    }
+
+
     # Fix domain names
     print_status "Fixing domain names..."
-    docker compose exec nrfc-wp-dev-db mysql -u wordpress -pwordpress wordpress -e "UPDATE wp_options SET option_value = 'http://localhost:8015' WHERE option_name IN ('home', 'siteurl');" || {
+    docker compose exec nrfc-wp-dev-db mariadb -u wordpress -pwordpress wordpress -e "UPDATE wp_options SET option_value = 'http://localhost:8015' WHERE option_name IN ('home', 'siteurl');" || {
         print_error "Failed to update domain names in database"
         return 1
     }
@@ -111,7 +117,7 @@ start_environment() {
 
 reset_test_password() {
   if [ -z "$1" ]; then
-    password=$(</dev/urandom tr -dc 'A-Za-z0-9' | head -c8)
+    password=$(LC_ALL=C tr -dc 'A-Za-z0-9' < /dev/urandom | head -c 8)
   else
     password="$1"
   fi
