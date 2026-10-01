@@ -32,12 +32,16 @@ These will build and push the production images to GitHub Container Registry. Th
 
 You can stage the site anywhere. Grab a DB dump from production and copy of the media files.
 
-Assuming you are on the live server
+You will need to grab the live files. Either scp them down top your machine or if you are on the live server:
 
 ```bash
 mkdir -p initdb.d
 /opt/docker/www-wp/backup.sh - | gzip -d > initdb.d/dump.sql
 cp -r /opt/docker/www-wp/uploads .
+```
+Grab the docker files:
+
+```bash
 wget -O compose.yaml https://raw.githubusercontent.com/NRFC/web/refs/heads/main/docker/production/compose.production.yaml
 wget -O .env https://raw.githubusercontent.com/NRFC/web/refs/heads/main/.env.example
 # edit the env file as needed, for staging you'll need to change the WORDPRESS_PORT

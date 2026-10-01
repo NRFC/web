@@ -72,13 +72,14 @@ start_environment() {
     source $(dirname $0)/check-mysql.sh
 
     print_status "Grabbing SQL from live environment..."
-    ssh dev.norwichrugby.com /opt/docker/www-wp/backup.sh - | gzip -d > initdb.d/dump.sql || {
+    mkdir -p "$PROJECT_ROOT/initdb.d"
+    ssh dev.norwichrugby.com /opt/docker/www-wp/backup.sh - | gzip -d > "$PROJECT_ROOT/initdb.d/dump.sql" || {
         print_error "Failed to get SQL dump from live environment. Check you have ssh key access."
         return 1
     }
 
     print_status "Grabbing media from live environment..."
-    rsync -a --progress dev.norwichrugby.com:/opt/docker/www-wp/uploads wordpress/wp-content/ || {
+    rsync -a --progress dev.norwichrugby.com:/opt/docker/www-wp/uploads "$PROJECT_ROOT/wordpress/wp-content/" || {
         print_error "Failed to get media from live environment. Check you have ssh key access."
         return 1
     }
@@ -95,7 +96,7 @@ start_environment() {
 
     # Fix domain names
     print_status "Fixing domain names..."
-    mysql -h 127.0.0.1 -P 3336 -u wordpress -pwordpress wordpress -e "UPDATE wp_options SET option_value = 'http://localhost:8015' WHERE option_name IN ('home', 'siteurl');" || {
+    docker compose exec nrfc-wp-dev-db mysql -u wordpress -pwordpress wordpress -e "UPDATE wp_options SET option_value = 'http://localhost:8015' WHERE option_name IN ('home', 'siteurl');" || {
         print_error "Failed to update domain names in database"
         return 1
     }
@@ -142,7 +143,7 @@ restart_environment() {
 
 # Function to display usage
 usage() {
-    echo "Usage: $SCRIPT_NAME {start|stop|restart}"
+    echo "Usage: $SCRIPT_NAME [options] [command]"
     echo ""
     echo "Commands:"
     echo "  start                     - Start the development environment"
@@ -150,10 +151,38 @@ usage() {
     echo "  restart                   - Restart the development environment"
     echo "  reset-password [password] - Reset password for the user test"
     echo ""
+    echo "Options:"
+    echo "  -s                        - Start the development environment"
+    echo "  -x                        - Stop the development environment"
+    echo "  -r                        - Restart the development environment"
+    echo "  -p [password]             - Reset password for the user test"
+    echo ""
     exit 1
 }
 
 # Main script logic
+COMMAND=""
+PASSWORD=""
+
+while getopts "srxp:" opt; do
+    case $opt in
+        s) COMMAND="start" ;;
+        x) COMMAND="stop" ;;
+        r) COMMAND="restart" ;;
+        p) COMMAND="reset-password"; PASSWORD="$OPTARG" ;;
+        *) usage ;;
+    esac
+done
+shift $((OPTIND-1))
+
+# If no options were provided, try positional argument
+if [ -z "$COMMAND" ]; then
+    COMMAND=$1
+    if [ "$COMMAND" == "reset-password" ]; then
+        PASSWORD=$2
+    fi
+fi
+
 case "$COMMAND" in
     start)
         check_docker
@@ -168,7 +197,7 @@ case "$COMMAND" in
         restart_environment
         ;;
     reset-password)
-        reset_test_password "$2"
+        reset_test_password "$PASSWORD"
         ;;
     *)
         usage
