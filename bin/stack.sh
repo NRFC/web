@@ -99,6 +99,11 @@ start_environment() {
         return 1
     }
 
+    [[ -f "$PROJECT_ROOT/wordpress/.htaccess" ]] || cp "$PROJECT_ROOT/wordpress/htaccess.dist" "$PROJECT_ROOT/wordpress/.htaccess" || {
+        print_error "Failed to copy in default .htaccess"
+        return 1
+    }
+
 
     # Fix domain names
     print_status "Fixing domain names..."
