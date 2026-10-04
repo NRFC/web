@@ -8,6 +8,7 @@
       <sourceFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-person-directory/tests" isTestSource="true" packagePrefix="NRFC\PersonDirectory\Tests\" />
       <sourceFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-sponsor-management/src" isTestSource="false" packagePrefix="SponsorManagement\" />
       <sourceFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-sponsor-management/tests" isTestSource="true" packagePrefix="NRFC\SponsorManagement\Tests\" />
+      <sourceFolder url="file://$MODULE_DIR$/spec" isTestSource="true" />
       <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-auto-links/vendor/composer" />
       <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-auto-links/vendor/myclabs/deep-copy" />
       <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-auto-links/vendor/nikic/php-parser" />
@@ -149,6 +150,8 @@
       <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-sponsor-management/vendor/staabm/side-effects-detector" />
       <excludeFolder url="file://$MODULE_DIR$/wordpress/wp-content/plugins/nrfc-sponsor-management/vendor/theseer/tokenizer" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/composer" />
+      <excludeFolder url="file://$MODULE_DIR$/vendor/symfony/polyfill-mbstring" />
+      <excludeFolder url="file://$MODULE_DIR$/vendor/symfony/var-dumper" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />

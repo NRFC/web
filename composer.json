@@ -12,6 +12,7 @@
     }
   },
   "require-dev": {
-    "wp-coding-standards/wpcs": "^3.4"
+    "wp-coding-standards/wpcs": "^3.4",
+    "symfony/var-dumper": "^8.1"
   }
 }

@@ -343,7 +343,6 @@ class Fixtures {
 		$notes = get_post_meta( $fixture_id, self::META_NOTES, true );
 
 		if ( ! empty( $opp_club ) && ! empty( $venue ) ) {
-			$content = '';
 			if ( in_array( strtolower( $venue ), array( 'home', 'away' ) ) ) {
 				$content = sprintf( '%s (%s)', $opp_club, strtoupper( substr( $venue, 0, 1 ) ) );
 			} else {
@@ -433,7 +432,6 @@ class Fixtures {
 		);
 
 		$query                = new \WP_Query( $args );
-		$can_edit             = current_user_can( 'edit_posts' );
 		$fixtures_by_date     = array();
 		$fixtures_by_date_raw = array();
 		$all_dates            = array();
@@ -451,6 +449,7 @@ class Fixtures {
 
 				$fixture_teams = wp_get_object_terms( $id, self::TAX_TEAM );
 				$cell_content  = $this->get_fixture_cell_content( $id );
+                $can_edit = $this->check_current_user_and_role( $id );
 
 				if ( $can_edit ) {
 					$edit_link    = get_edit_post_link( $id );
@@ -600,7 +599,7 @@ class Fixtures {
 					<?php if ( isset( $fixtures_by_date_raw[ $date ] ) ) : ?>
 						<div class="nrfc-fixture-date-block">
 							<h2><?php echo esc_html( date_i18n( get_option( 'date_format' ), strtotime( $date ) ) ); ?></h2>
-							<ul>
+							<ufl>
 								<?php foreach ( $fixtures_by_date_raw[ $date ] as $fixture ) : ?>
 									<?php
 									// Check if this fixture's team is in the filtered list
@@ -623,7 +622,7 @@ class Fixtures {
 										</li>
 									<?php endif; ?>
 								<?php endforeach; ?>
-							</ul>
+							</ufl>
 						</div>
 					<?php endif; ?>
 				<?php endforeach; ?>
@@ -1760,7 +1759,7 @@ class Fixtures {
 		return ob_get_clean();
 	}
 
-    public function check_current_user_and_role(): bool {
+    public function check_current_user_and_role( $post_id ): bool {
         $current_user = wp_get_current_user();
         if ( 0 === $current_user->ID ) {
             echo 'No user is currently logged in (Guest).';
@@ -1768,31 +1767,30 @@ class Fixtures {
         }
 
         $roles = $current_user->roles;
-        /*
-         super_admin	Multisite networks only (manages network-wide settings)
-	administrator	Single site full control (plugins, themes, users, settings)
-	editor	Manages and publishes all content (posts, pages, comments)
-	author	Publishes and manages only their own posts
-	contributor	Writes/edits their own drafts, but cannot publish them
-	subscriber
-         */
+        $admin_roles = [
+                'super_admin',
+                'administrator',
+                'editor',
+                'author',
+                'contributor',
+        ];
 
-        if (in_array('administrator', $current_user->roles)) {
+        if ( array_intersect( $roles, $admin_roles ) ) {
             return true;
         }
 
-        $post = get_queried_object();
-        if ( ! $post instanceof WP_Post ) {
+        // Retrieve terms for the 'fixture_team' taxonomy
+        $terms = wp_get_post_terms( $post_id, self::TAX_TEAM );
+        if ( empty( $terms ) || is_wp_error( $terms ) ) {
             return false;
         }
-        $post_id = $post->ID;
-        $meta_value = get_post_meta( $post_id, self::TAX_TEAM, true );
 
-        // check user role vs team id
+        // Use the first assigned team's name
+        $team = $terms[0]->name;
+        $role_name = strtolower( str_replace( ' ', '_', $team ) ) . '_editor';
 
-        // Output the information for testing
-//        echo 'Logged in as: ' . esc_html( $username ) . ' (ID: ' . intval( $user_id ) . ')<br>';
-//        echo 'Assigned Roles: ' . esc_html( implode( ', ', $roles ) );
+        $can_edit = in_array( $role_name, $roles, true );
+        return $can_edit;
     }
 
 	/**
