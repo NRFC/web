@@ -263,11 +263,13 @@ final class FixturesPrivateMethodsTest extends TestCase {
 
 	public function test_register_landing_page_rewrite_and_query_vars(): void {
 		$this->fixtures->register_landing_page_rewrite();
-		self::assertCount( 2, FixturesTestState::$rewrite_rules );
-		self::assertSame( '^fixtures/export/?$', FixturesTestState::$rewrite_rules[1]['regex'] );
+		self::assertCount( 3, FixturesTestState::$rewrite_rules );
+		self::assertSame( '^fixtures/edit/?$', FixturesTestState::$rewrite_rules[0]['regex'] );
+		self::assertSame( '^fixtures/export/?$', FixturesTestState::$rewrite_rules[2]['regex'] );
 
 		$vars = $this->fixtures->register_query_vars( array() );
 		self::assertContains( 'nrfc_fixtures_export', $vars );
+		self::assertContains( Fixtures::EDIT_QUERY_VAR, $vars );
 		self::assertContains( 'team', $vars );
 	}
 
@@ -344,6 +346,5 @@ final class FixturesPrivateMethodsTest extends TestCase {
 		return $invoker( $this->fixtures, $method_name, $arguments );
 	}
 }
-
 
 

@@ -32,8 +32,11 @@ class Fixtures {
 	const NONCE_METABOX = 'fixture_metabox_nonce';
 	const NONCE_IMPORT  = 'fixture_import_nonce';
 	const NONCE_SPOND   = 'fixture_spond_nonce';
+	const NONCE_FRONTEND = 'fixture_frontend_nonce';
 
 	const PAGE_SLUG = 'fixtures';
+	const EDIT_QUERY_VAR = 'nrfc_fixture_edit';
+	const EDIT_REWRITE_VERSION = '1';
 
 	const TAX_DATA = array(
 		self::TAX_TEAM          => array(
@@ -135,7 +138,9 @@ class Fixtures {
 		add_action( 'init', array( $this, 'register_landing_page_rewrite' ) );
 		add_filter( 'template_include', array( $this, 'handle_landing_page_template' ) );
 		add_action( 'template_redirect', array( $this, 'handle_public_export_route' ) );
+		add_action( 'template_redirect', array( $this, 'handle_fixture_form_route' ) );
 		add_filter( 'query_vars', array( $this, 'register_query_vars' ) );
+		add_action( 'init', array( $this, 'maybe_flush_edit_rewrite_rules' ), 99 );
 
 		// Register REST API Route
 		add_action( 'rest_api_init', array( $this, 'register_rest_routes' ) );
@@ -151,8 +156,21 @@ class Fixtures {
 	 * Register rewrite rule for the fixtures landing page and export endpoint
 	 */
 	public function register_landing_page_rewrite(): void {
+		add_rewrite_rule( '^fixtures/edit/?$', 'index.php?' . self::EDIT_QUERY_VAR . '=1', 'top' );
 		add_rewrite_rule( '^fixtures/?$', 'index.php?nrfc_fixtures_page=1', 'top' );
 		add_rewrite_rule( '^fixtures/export/?$', 'index.php?nrfc_fixtures_export=1', 'top' );
+	}
+
+	/**
+	 * Flush rewrite rules once when introducing the front-end edit route.
+	 */
+	public function maybe_flush_edit_rewrite_rules(): void {
+		if ( get_option( 'nrfc_fixture_edit_rewrite_version' ) === self::EDIT_REWRITE_VERSION ) {
+			return;
+		}
+
+		flush_rewrite_rules( false );
+		update_option( 'nrfc_fixture_edit_rewrite_version', self::EDIT_REWRITE_VERSION );
 	}
 
 	/**
@@ -161,10 +179,280 @@ class Fixtures {
 	public function register_query_vars( $vars ): array {
 		$vars[] = 'nrfc_fixtures_page';
 		$vars[] = 'nrfc_fixtures_export';
+		$vars[] = self::EDIT_QUERY_VAR;
 		$vars[] = 'teams';
 		$vars[] = 'team';
 
 		return $vars;
+	}
+
+	/**
+	 * Render and handle the front-end fixture create/edit page.
+	 */
+	public function handle_fixture_form_route(): void {
+		if ( ! get_query_var( self::EDIT_QUERY_VAR ) ) {
+			return;
+		}
+
+		$fixture_id = isset( $_GET['fixture_id'] ) ? absint( $_GET['fixture_id'] ) : 0;
+		if ( ! $this->can_create_fixture() || ( $fixture_id && ! $this->can_manage_fixture( $fixture_id ) ) ) {
+			wp_die(
+				esc_html__( 'You do not have permission to manage this fixture.', 'nrfc-fixtures' ),
+				esc_html__( 'Forbidden', 'nrfc-fixtures' ),
+				array( 'response' => 403 )
+			);
+		}
+
+		$errors = array();
+		if ( 'POST' === ( $_SERVER['REQUEST_METHOD'] ?? '' ) ) {
+			$result = $this->save_frontend_fixture();
+			if ( is_wp_error( $result ) ) {
+				$errors[] = $result->get_error_message();
+			} else {
+				wp_safe_redirect( home_url( '/fixtures/edit/?fixture_id=' . $result . '&saved=1' ) );
+				exit;
+			}
+		}
+
+		$this->render_frontend_fixture_form( $fixture_id, $errors );
+	}
+
+	/**
+	 * Save a fixture submitted from the front-end form.
+	 *
+	 * @return int|\WP_Error
+	 */
+	private function save_frontend_fixture(): int|\WP_Error {
+		if (
+			! isset( $_POST[ self::NONCE_FRONTEND ] )
+			|| ! is_scalar( $_POST[ self::NONCE_FRONTEND ] )
+		) {
+			return new \WP_Error( 'invalid_nonce', __( 'Your session could not be verified. Please try again.', 'nrfc-fixtures' ) );
+		}
+		$nonce = sanitize_text_field( wp_unslash( (string) $_POST[ self::NONCE_FRONTEND ] ) );
+		if ( ! wp_verify_nonce( $nonce, 'save_frontend_fixture' ) ) {
+			return new \WP_Error( 'invalid_nonce', __( 'Your session could not be verified. Please try again.', 'nrfc-fixtures' ) );
+		}
+
+		$fixture_id = isset( $_POST['fixture_id'] ) ? absint( $_POST['fixture_id'] ) : 0;
+		if ( $fixture_id && ! $this->can_manage_fixture( $fixture_id ) ) {
+			return new \WP_Error( 'forbidden_fixture', __( 'You do not have permission to edit this fixture.', 'nrfc-fixtures' ) );
+		}
+
+		$team_id = isset( $_POST['fixture_team'] ) ? absint( $_POST['fixture_team'] ) : 0;
+		$team    = $team_id ? get_term( $team_id, self::TAX_TEAM ) : null;
+		if ( ! ( $team instanceof \WP_Term ) || ! $this->can_manage_fixture_team( $team_id ) ) {
+			return new \WP_Error( 'invalid_team', __( 'Select a team that you are allowed to manage.', 'nrfc-fixtures' ) );
+		}
+
+		$date        = $this->get_frontend_posted_value( 'fixture_date' );
+		$date_object = DateTime::createFromFormat( '!Y-m-d', $date );
+		if ( ! $date_object || $date_object->format( 'Y-m-d' ) !== $date ) {
+			return new \WP_Error( 'invalid_date', __( 'Enter a valid fixture date.', 'nrfc-fixtures' ) );
+		}
+
+		$kick_off_time = $this->get_frontend_posted_value( 'fixture_kick_off_time' );
+		if ( $kick_off_time !== '' && ! preg_match( '/^(?:[01]\d|2[0-3]):[0-5]\d$/', $kick_off_time ) ) {
+			return new \WP_Error( 'invalid_time', __( 'Enter a valid kick-off time.', 'nrfc-fixtures' ) );
+		}
+
+		$term_fields = array(
+			'fixture_opposing_club' => self::TAX_OPPOSING_CLUB,
+			'fixture_opposing_team' => self::TAX_OPPOSING_TEAM,
+			'fixture_competition'   => self::TAX_COMPETITION,
+		);
+		$selected_terms = array();
+		foreach ( $term_fields as $field => $taxonomy ) {
+			$term_id = isset( $_POST[ $field ] ) ? absint( $_POST[ $field ] ) : 0;
+			$term    = $term_id ? get_term( $term_id, $taxonomy ) : null;
+			if ( $term_id && ! ( $term instanceof \WP_Term ) ) {
+				return new \WP_Error( 'invalid_term', __( 'One of the selected fixture options is invalid.', 'nrfc-fixtures' ) );
+			}
+			$selected_terms[ $taxonomy ] = $term instanceof \WP_Term ? $term : null;
+		}
+
+		$notes = $this->get_frontend_posted_value( 'fixture_notes', true );
+		$title = $this->get_frontend_posted_value( 'fixture_title' );
+		if ( $title === '' ) {
+			$title = $this->makeFixtureTitle( $team->name, $selected_terms[ self::TAX_OPPOSING_CLUB ]?->name ?? '', $notes );
+		}
+		$post_data = array(
+			'post_type'   => self::CPT,
+			'post_title'  => $title,
+			'post_status' => 'publish',
+		);
+		if ( $fixture_id ) {
+			$post_data['ID'] = $fixture_id;
+			$post_id         = wp_update_post( $post_data, true );
+		} else {
+			$post_id = wp_insert_post( $post_data, true );
+		}
+
+		if ( is_wp_error( $post_id ) ) {
+			return $post_id;
+		}
+		if ( ! $post_id ) {
+			return new \WP_Error( 'fixture_save_failed', __( 'The fixture could not be saved.', 'nrfc-fixtures' ) );
+		}
+
+		update_post_meta( $post_id, self::META_DATE, $date_object->format( 'Y-m-d' ) );
+		update_post_meta( $post_id, self::META_KICK_OFF_TIME, $kick_off_time );
+		update_post_meta( $post_id, self::META_VENUE, $this->get_frontend_posted_value( 'fixture_venue' ) );
+		update_post_meta( $post_id, self::META_NOTES, $notes );
+		$team_result = wp_set_object_terms( $post_id, array( $team_id ), self::TAX_TEAM );
+		if ( is_wp_error( $team_result ) ) {
+			return $team_result;
+		}
+
+		foreach ( $selected_terms as $taxonomy => $term ) {
+			$term_ids    = $term instanceof \WP_Term ? array( (int) $term->term_id ) : array();
+			$term_result = wp_set_object_terms( $post_id, $term_ids, $taxonomy );
+			if ( is_wp_error( $term_result ) ) {
+				return $term_result;
+			}
+		}
+
+		return (int) $post_id;
+	}
+
+	/**
+	 * Read and sanitize a scalar front-end form value.
+	 */
+	private function get_frontend_posted_value( string $key, bool $textarea = false ): string {
+		if ( ! isset( $_POST[ $key ] ) || ! is_scalar( $_POST[ $key ] ) ) {
+			return '';
+		}
+
+		$value = (string) wp_unslash( $_POST[ $key ] );
+		return $textarea ? sanitize_textarea_field( $value ) : sanitize_text_field( $value );
+	}
+
+	/**
+	 * Render the front-end fixture form.
+	 *
+	 * @param int           $fixture_id Fixture ID, or zero for a new fixture.
+	 * @param array<string> $errors     Form errors to display.
+	 */
+	private function render_frontend_fixture_form( int $fixture_id, array $errors ): void {
+		$selected = array(
+			self::TAX_TEAM          => 0,
+			self::TAX_OPPOSING_CLUB => 0,
+			self::TAX_OPPOSING_TEAM => 0,
+			self::TAX_COMPETITION   => 0,
+		);
+		if ( $fixture_id ) {
+			foreach ( array_keys( $selected ) as $taxonomy ) {
+				$terms = wp_get_object_terms( $fixture_id, $taxonomy );
+				if ( ! is_wp_error( $terms ) && ! empty( $terms ) && $terms[0] instanceof \WP_Term ) {
+					$selected[ $taxonomy ] = (int) $terms[0]->term_id;
+				}
+			}
+		}
+
+		$title         = $fixture_id ? get_the_title( $fixture_id ) : '';
+		$date          = $fixture_id ? get_post_meta( $fixture_id, self::META_DATE, true ) : '';
+		$kick_off_time = $fixture_id ? get_post_meta( $fixture_id, self::META_KICK_OFF_TIME, true ) : '';
+		$venue         = $fixture_id ? get_post_meta( $fixture_id, self::META_VENUE, true ) : '';
+		$notes         = $fixture_id ? get_post_meta( $fixture_id, self::META_NOTES, true ) : '';
+		$teams         = $this->get_accessible_fixture_teams();
+
+		get_header();
+		?>
+		<main class="nrfc-fixture-form wrap">
+			<h1><?php echo esc_html( $fixture_id ? __( 'Edit Fixture', 'nrfc-fixtures' ) : __( 'Create Fixture', 'nrfc-fixtures' ) ); ?></h1>
+			<?php if ( isset( $_GET['saved'] ) ) : ?>
+				<p class="notice notice-success"><?php esc_html_e( 'Fixture saved.', 'nrfc-fixtures' ); ?></p>
+			<?php endif; ?>
+			<?php foreach ( $errors as $error ) : ?>
+				<p class="notice notice-error"><?php echo esc_html( $error ); ?></p>
+			<?php endforeach; ?>
+			<form method="post" action="<?php echo esc_url( home_url( '/fixtures/edit/' . ( $fixture_id ? '?fixture_id=' . $fixture_id : '' ) ) ); ?>">
+				<?php wp_nonce_field( 'save_frontend_fixture', self::NONCE_FRONTEND ); ?>
+				<input type="hidden" name="fixture_id" value="<?php echo esc_attr( (string) $fixture_id ); ?>">
+				<table class="form-table">
+					<tr>
+						<th scope="row"><label for="fixture_title"><?php esc_html_e( 'Title', 'nrfc-fixtures' ); ?></label></th>
+						<td>
+							<input type="text" class="regular-text" id="fixture_title" name="fixture_title" value="<?php echo esc_attr( (string) $title ); ?>">
+							<p class="description"><?php esc_html_e( 'Leave blank to generate from the team, opposing club and notes.', 'nrfc-fixtures' ); ?></p>
+						</td>
+					</tr>
+					<tr>
+						<th scope="row"><label for="fixture_team"><?php esc_html_e( 'Team', 'nrfc-fixtures' ); ?></label></th>
+						<td><?php $this->render_frontend_term_select( 'fixture_team', self::TAX_TEAM, $teams, $selected[ self::TAX_TEAM ] ); ?></td>
+					</tr>
+					<?php
+					foreach (
+						array(
+							self::TAX_OPPOSING_CLUB => 'fixture_opposing_club',
+							self::TAX_OPPOSING_TEAM => 'fixture_opposing_team',
+							self::TAX_COMPETITION   => 'fixture_competition',
+						) as $taxonomy => $field
+					) :
+						$terms = get_terms( array( 'taxonomy' => $taxonomy, 'hide_empty' => false ) );
+						$terms = is_array( $terms ) ? $terms : array();
+						?>
+						<tr>
+							<th scope="row"><label for="<?php echo esc_attr( $field ); ?>"><?php echo esc_html( $this->get_taxonomy_label( $taxonomy ) ); ?></label></th>
+							<td><?php $this->render_frontend_term_select( $field, $taxonomy, $terms, $selected[ $taxonomy ] ); ?></td>
+						</tr>
+					<?php endforeach; ?>
+					<tr>
+						<th scope="row"><label for="fixture_date"><?php esc_html_e( 'Date', 'nrfc-fixtures' ); ?></label></th>
+						<td><input type="date" id="fixture_date" name="fixture_date" value="<?php echo esc_attr( (string) $date ); ?>" required></td>
+					</tr>
+					<tr>
+						<th scope="row"><label for="fixture_kick_off_time"><?php esc_html_e( 'Kick-off time', 'nrfc-fixtures' ); ?></label></th>
+						<td><input type="time" id="fixture_kick_off_time" name="fixture_kick_off_time" value="<?php echo esc_attr( (string) $kick_off_time ); ?>"></td>
+					</tr>
+					<tr>
+						<th scope="row"><label for="fixture_venue"><?php esc_html_e( 'Venue', 'nrfc-fixtures' ); ?></label></th>
+						<td><input type="text" class="regular-text" id="fixture_venue" name="fixture_venue" value="<?php echo esc_attr( (string) $venue ); ?>" placeholder="<?php esc_attr_e( 'Home, Away, or specific ground', 'nrfc-fixtures' ); ?>"></td>
+					</tr>
+					<tr>
+						<th scope="row"><label for="fixture_notes"><?php esc_html_e( 'Notes', 'nrfc-fixtures' ); ?></label></th>
+						<td><textarea class="large-text" rows="4" id="fixture_notes" name="fixture_notes"><?php echo esc_textarea( (string) $notes ); ?></textarea></td>
+					</tr>
+				</table>
+				<p><button type="submit" class="button button-primary"><?php esc_html_e( 'Save Fixture', 'nrfc-fixtures' ); ?></button></p>
+			</form>
+		</main>
+		<?php
+		get_footer();
+		exit;
+	}
+
+	/**
+	 * Render one taxonomy select.
+	 *
+	 * @param array<\WP_Term> $terms
+	 */
+	private function render_frontend_term_select( string $field, string $taxonomy, array $terms, int $selected_id ): void {
+		echo '<select name="' . esc_attr( $field ) . '" id="' . esc_attr( $field ) . '">';
+		echo '<option value="0">' . esc_html( sprintf( __( 'Select %s', 'nrfc-fixtures' ), $this->get_taxonomy_label( $taxonomy ) ) ) . '</option>';
+		foreach ( $terms as $term ) {
+			if ( ! ( $term instanceof \WP_Term ) ) {
+				continue;
+			}
+			printf(
+				'<option value="%s" %s>%s</option>',
+				esc_attr( (string) $term->term_id ),
+				selected( $selected_id, $term->term_id, false ),
+				esc_html( $term->name )
+			);
+		}
+		echo '</select>';
+	}
+
+	private function get_taxonomy_label( string $taxonomy ): string {
+		$labels = array(
+			self::TAX_TEAM          => __( 'Team', 'nrfc-fixtures' ),
+			self::TAX_OPPOSING_CLUB => __( 'Opposing Club', 'nrfc-fixtures' ),
+			self::TAX_OPPOSING_TEAM => __( 'Opposing Team', 'nrfc-fixtures' ),
+			self::TAX_COMPETITION   => __( 'Competition', 'nrfc-fixtures' ),
+		);
+
+		return $labels[ $taxonomy ] ?? __( 'Option', 'nrfc-fixtures' );
 	}
 
 	/**
@@ -452,7 +740,7 @@ class Fixtures {
                 $can_edit = $this->check_current_user_and_role( $id );
 
 				if ( $can_edit ) {
-					$edit_link    = get_edit_post_link( $id );
+					$edit_link    = home_url( '/fixtures/edit/?fixture_id=' . $id );
 					$cell_content = sprintf( '<a href="%s">%s</a>', esc_url( $edit_link ), esc_html( $cell_content ) );
 				} else {
 					$cell_content = esc_html( $cell_content );
@@ -475,6 +763,9 @@ class Fixtures {
 		?>
 		<div class="wrap nrfc-fixtures-grid-container">
 			<h2><?php esc_html_e( 'Fixtures Grid', 'nrfc-fixtures' ); ?></h2>
+			<?php if ( $this->can_create_fixture() ) : ?>
+				<p><a class="button button-primary" href="<?php echo esc_url( home_url( '/fixtures/edit/' ) ); ?>"><?php esc_html_e( 'Add Fixture', 'nrfc-fixtures' ); ?></a></p>
+			<?php endif; ?>
 
 			<div class="nrfc-fixtures-filter">
 				<form method="get" action="">
@@ -1695,8 +1986,7 @@ class Fixtures {
 			);
 		}
 
-		$query    = new \WP_Query( $args );
-		$can_edit = current_user_can( 'edit_posts' );
+		$query = new \WP_Query( $args );
 
 		if ( ! $query->have_posts() ) {
 			return '<p>' . esc_html__( 'No fixtures found.', 'nrfc-fixtures' ) . '</p>';
@@ -1734,8 +2024,8 @@ class Fixtures {
 					$display_date = date_i18n( get_option( 'date_format' ), strtotime( $date ) );
 
 					$fixture_title = get_the_title();
-					if ( $can_edit ) {
-						$edit_link     = get_edit_post_link( $id );
+					if ( $this->check_current_user_and_role( $id ) ) {
+						$edit_link     = home_url( '/fixtures/edit/?fixture_id=' . $id );
 						$fixture_title = sprintf( '<a href="%s">%s</a>', esc_url( $edit_link ), esc_html( $fixture_title ) );
 					} else {
 						$fixture_title = esc_html( $fixture_title );
@@ -1759,39 +2049,88 @@ class Fixtures {
 		return ob_get_clean();
 	}
 
-    public function check_current_user_and_role( $post_id ): bool {
-        $current_user = wp_get_current_user();
-        if ( 0 === $current_user->ID ) {
-            echo 'No user is currently logged in (Guest).';
-            return false;
-        }
+	public function check_current_user_and_role( $post_id ): bool {
+		return $this->can_manage_fixture( (int) $post_id );
+	}
 
-        $roles = $current_user->roles;
-        $admin_roles = [
-                'super_admin',
-                'administrator',
-                'editor',
-                'author',
-                'contributor',
-        ];
+	private function has_fixture_admin_role(): bool {
+		$user = wp_get_current_user();
+		$admin_roles = array( 'super_admin', 'administrator', 'editor', 'author', 'contributor' );
 
-        if ( array_intersect( $roles, $admin_roles ) ) {
-            return true;
-        }
+		return ! empty( $user->ID ) && (bool) array_intersect( (array) $user->roles, $admin_roles );
+	}
 
-        // Retrieve terms for the 'fixture_team' taxonomy
-        $terms = wp_get_post_terms( $post_id, self::TAX_TEAM );
-        if ( empty( $terms ) || is_wp_error( $terms ) ) {
-            return false;
-        }
+	private function can_manage_fixture_team( int $team_id ): bool {
+		if ( $this->has_fixture_admin_role() ) {
+			return true;
+		}
 
-        // Use the first assigned team's name
-        $team = $terms[0]->name;
-        $role_name = strtolower( str_replace( ' ', '_', $team ) ) . '_editor';
+		$user = wp_get_current_user();
+		if ( empty( $user->ID ) ) {
+			return false;
+		}
 
-        $can_edit = in_array( $role_name, $roles, true );
-        return $can_edit;
-    }
+		$team = get_term( $team_id, self::TAX_TEAM );
+		if ( ! ( $team instanceof \WP_Term ) ) {
+			return false;
+		}
+
+		$role_name = strtolower( str_replace( ' ', '_', $team->name ) ) . '_editor';
+		return in_array( $role_name, (array) $user->roles, true );
+	}
+
+	private function can_create_fixture(): bool {
+		if ( $this->has_fixture_admin_role() ) {
+			return true;
+		}
+
+		return ! empty( $this->get_accessible_fixture_teams() );
+	}
+
+	private function can_manage_fixture( int $fixture_id ): bool {
+		$post = get_post( $fixture_id );
+		if ( ! $post || $post->post_type !== self::CPT ) {
+			return false;
+		}
+		if ( $this->has_fixture_admin_role() ) {
+			return true;
+		}
+
+		$teams = wp_get_object_terms( $fixture_id, self::TAX_TEAM );
+		if ( is_wp_error( $teams ) || empty( $teams ) ) {
+			return false;
+		}
+
+		foreach ( $teams as $team ) {
+			if ( $team instanceof \WP_Term && $this->can_manage_fixture_team( (int) $team->term_id ) ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * @return array<\WP_Term>
+	 */
+	private function get_accessible_fixture_teams(): array {
+		$teams = get_terms( array( 'taxonomy' => self::TAX_TEAM, 'hide_empty' => false ) );
+		if ( is_wp_error( $teams ) || ! is_array( $teams ) ) {
+			return array();
+		}
+		if ( $this->has_fixture_admin_role() ) {
+			return $teams;
+		}
+
+		return array_values(
+			array_filter(
+				$teams,
+				function ( $team ): bool {
+					return $team instanceof \WP_Term && $this->can_manage_fixture_team( (int) $team->term_id );
+				}
+			)
+		);
+	}
 
 	/**
 	 * Register the fixtures widget

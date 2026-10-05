@@ -14,6 +14,7 @@ This plugin adds a "Fixture" custom post type to manage rugby matches for the No
   - Date
   - Kick Off Time
   - Venue (Home/Away/Specific Ground)
+- **Front-end Fixture Editor**: Team editors can create fixtures and update fixtures for teams they manage without access to the WordPress admin.
 
 ## Installation
 
@@ -22,7 +23,7 @@ This plugin adds a "Fixture" custom post type to manage rugby matches for the No
 
 ## Usage
 
-Once activated, a "Fixtures" menu item will appear in the WordPress admin sidebar. You can add new fixtures, categorize them by team and competition, and specify match details.
+Once activated, a "Fixtures" menu item will appear in the WordPress admin sidebar. Users with a team editor role can also add fixtures from the fixtures grid and update fixtures assigned to their team at `/fixtures/edit/`.
 
 ## Unit Testing
 
@@ -51,4 +52,3 @@ docker run --rm -u "$(id -u):$(id -g)" -v "$(pwd):/app" -w /app/wordpress/wp-con
 
 docker run --rm -u "$(id -u):$(id -g)" -v "$(pwd):/app" -w /app/wordpress/wp-content/plugins/nrfc-fixtures composer:2 composer test
 ```
-
