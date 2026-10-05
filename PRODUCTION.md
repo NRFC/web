@@ -4,7 +4,7 @@
 
 ### GitHub Actions
 
-The `Build production images` workflow builds and pushes both production images to GitHub Container Registry on manual dispatch and on pushes to `main`.
+The `Build production images` workflow builds and pushes the production image (`ghcr.io/nrfc/wp-prod`) to GitHub Container Registry on manual dispatch and on pushes to `main`.
 
 Images are tagged with the commit SHA. Builds from `main` are also tagged as `latest`, which is what `docker/production/compose.production.yaml` uses by default.
 
@@ -19,14 +19,11 @@ Images are tagged with the commit SHA. Builds from `main` are also tagged as `la
 Run these from the project root directory.
 
 ```bash
-docker build -t ghcr.io/nrfc/wp-prod-php -f docker/production/Dockerfile.production .
-docker push ghcr.io/nrfc/wp-prod-php
-
-docker build -t ghcr.io/nrfc/wp-prod-nginx -f docker/production/Dockerfile.production.nginx .
-docker push ghcr.io/nrfc/wp-prod-nginx
+docker build -t ghcr.io/nrfc/wp-prod -f docker/production/Dockerfile .
+docker push ghcr.io/nrfc/wp-prod
 ```
 
-These will build and push the production images to GitHub Container Registry. The images are tagged with the current git commit hash.
+This builds and pushes the production image to GitHub Container Registry.
 
 ## Staging
 
@@ -45,5 +42,36 @@ Grab the docker files:
 wget -O compose.yaml https://raw.githubusercontent.com/NRFC/web/refs/heads/main/docker/production/compose.production.yaml
 wget -O .env https://raw.githubusercontent.com/NRFC/web/refs/heads/main/.env.example
 # edit the env file as needed, for staging you'll need to change the WORDPRESS_PORT
+# generate the WordPress keys/salts (keep them stable between deploys)
+wget -O - https://raw.githubusercontent.com/NRFC/web/refs/heads/main/bin/generate-wp-keys.sh | bash >> .env
+# uploads must be writable by www-data inside the container
+sudo chown -R 33:33 uploads
 docker compose up
 ```
+
+## Single Apache image
+
+`docker/production/Dockerfile` builds a self-contained image based on `wordpress:7.1.2-php8.4-apache`
+containing WordPress core, the themes, plugins (with production Composer autoloaders), mu-plugins and
+production PHP/Apache config. Code is served from `/var/www/nrfc` and is read-only to Apache.
+
+```bash
+docker build -f docker/production/Dockerfile -t ghcr.io/nrfc/wp-prod .
+
+docker run -d -p 8015:80 \
+  -e WORDPRESS_DB_HOST=db.example:3306 \
+  -e WORDPRESS_DB_USER=wordpress \
+  -e WORDPRESS_DB_PASSWORD=secret \
+  -e WORDPRESS_DB_NAME=wordpress \
+  -v /opt/docker/www-wp/uploads:/var/www/nrfc/wp-content/uploads \
+  ghcr.io/nrfc/wp-prod
+```
+
+* The uploads directory must be writable by `www-data` (UID 33).
+* Set `WORDPRESS_AUTH_KEY`, `WORDPRESS_SECURE_AUTH_KEY`, `WORDPRESS_LOGGED_IN_KEY`, `WORDPRESS_NONCE_KEY`
+  and the matching `*_SALT` variables (generate with `./bin/generate-wp-keys.sh`). Each can instead be
+  supplied as a Docker secret via `WORDPRESS_<NAME>_FILE=/run/secrets/...`. If any are missing the
+  container logs a warning and random keys are used, logging users out on every redeploy; set
+  `NRFC_REQUIRE_KEYS=true` (as `compose.production.yaml` does) to refuse to start instead.
+* Plugin/theme installs and core auto-updates are disabled (`DISALLOW_FILE_MODS`); ship changes by
+  rebuilding the image. Extra config can be passed with `WORDPRESS_CONFIG_EXTRA`.

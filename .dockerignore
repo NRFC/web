@@ -10,3 +10,22 @@ wp
 wordpress/wp-content/uploads/
 wp-content/uploads/
 
+
+# Not needed in the production image
+.aider*
+.husky
+.junie
+.github
+.phpcs.cache
+node_modules
+vendor
+skunk*
+fixtures
+**/*.log
+wordpress/wp-admin
+wordpress/wp-includes
+wordpress/*.php
+wordpress/wp-config.php
+wordpress/wp-content/plugins/hello.php
+wordpress/wp-content/themes/twenty*
+wordpress/wp-content/plugins/nrfc-*/vendor

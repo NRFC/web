@@ -22,10 +22,8 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - image: wp-prod-php
-            dockerfile: docker/production/Dockerfile.production
-          - image: wp-prod-nginx
-            dockerfile: docker/production/Dockerfile.production.nginx
+          - image: wp-prod
+            dockerfile: docker/production/Dockerfile
 
     steps:
       - name: Checkout
