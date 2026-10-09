@@ -1,0 +1,74 @@
+# Production Docker Compose configuration
+# Usage: docker compose -f compose.production.yaml up -d
+#
+# - nrfc-wp-prod-web: WordPress on Apache with all code baked in (docker/production/Dockerfile)
+# - nrfc-wp-prod-db:  MariaDB
+# - ./uploads is mounted into the web container and must be writable by www-data (UID 33)
+#
+# WordPress keys/salts are required. Generate them with ./bin/generate-wp-keys.sh >> .env
+
+x-wp-keys: &wp-keys
+  WORDPRESS_AUTH_KEY: ${WORDPRESS_AUTH_KEY:?WORDPRESS_AUTH_KEY is required}
+  WORDPRESS_SECURE_AUTH_KEY: ${WORDPRESS_SECURE_AUTH_KEY:?WORDPRESS_SECURE_AUTH_KEY is required}
+  WORDPRESS_LOGGED_IN_KEY: ${WORDPRESS_LOGGED_IN_KEY:?WORDPRESS_LOGGED_IN_KEY is required}
+  WORDPRESS_NONCE_KEY: ${WORDPRESS_NONCE_KEY:?WORDPRESS_NONCE_KEY is required}
+  WORDPRESS_AUTH_SALT: ${WORDPRESS_AUTH_SALT:?WORDPRESS_AUTH_SALT is required}
+  WORDPRESS_SECURE_AUTH_SALT: ${WORDPRESS_SECURE_AUTH_SALT:?WORDPRESS_SECURE_AUTH_SALT is required}
+  WORDPRESS_LOGGED_IN_SALT: ${WORDPRESS_LOGGED_IN_SALT:?WORDPRESS_LOGGED_IN_SALT is required}
+  WORDPRESS_NONCE_SALT: ${WORDPRESS_NONCE_SALT:?WORDPRESS_NONCE_SALT is required}
+
+services:
+  nrfc-wp-prod-web:
+    image: ghcr.io/nrfc/wp-prod:${WORDPRESS_IMAGE_TAG:-latest}
+    container_name: nrfc-wp-prod-web
+    ports:
+      - "${WORDPRESS_PORT:-8015}:80"
+    volumes:
+      - ./uploads:/var/www/nrfc/wp-content/uploads:rw
+    environment:
+      <<: *wp-keys
+      WORDPRESS_DB_HOST: nrfc-wp-prod-db
+      WORDPRESS_DB_USER: ${WORDPRESS_DB_USER:-wordpress}
+      WORDPRESS_DB_PASSWORD: ${WORDPRESS_DB_PASSWORD:?WORDPRESS_DB_PASSWORD is required}
+      WORDPRESS_DB_NAME: ${WORDPRESS_DB_NAME:-wordpress}
+      WORDPRESS_CONFIG_EXTRA: ${WORDPRESS_CONFIG_EXTRA:-}
+      NRFC_REQUIRE_KEYS: "true"
+      TZ: UTC
+    depends_on:
+      nrfc-wp-prod-db:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - nrfc-network
+
+  nrfc-wp-prod-db:
+    image: mariadb:11
+    container_name: nrfc-wp-prod-db
+    volumes:
+      - ./initdb.d:/docker-entrypoint-initdb.d:ro
+      - db-data:/var/lib/mysql
+    environment:
+      MARIADB_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD:?MARIADB_ROOT_PASSWORD is required}
+      MARIADB_USER: ${WORDPRESS_DB_USER:-wordpress}
+      MARIADB_PASSWORD: ${WORDPRESS_DB_PASSWORD:?WORDPRESS_DB_PASSWORD is required}
+      MARIADB_DATABASE: ${WORDPRESS_DB_NAME:-wordpress}
+      TZ: UTC
+      MARIADB_INITDB_SKIP_TZINFO: "1"
+    restart: unless-stopped
+    networks:
+      - nrfc-network
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    # No ports exposed to the host; only reachable on the compose network.
+
+volumes:
+  db-data:
+    driver: local
+
+networks:
+  nrfc-network:
+    driver: bridge
