@@ -25,27 +25,17 @@ docker push ghcr.io/nrfc/wp-prod
 
 This builds and pushes the production image to GitHub Container Registry.
 
-## Staging
+## Deploying
 
-You can stage the site anywhere. Grab a DB dump from production and copy of the media files.
-
-You will need to grab the live files. Either scp them down top your machine or if you are on the live server:
+You can stage the site anywhere. We have a helper script, it assumes you have shell access to a machine running a version of the site.
 
 ```bash
-mkdir -p initdb.d
-/opt/docker/www-wp/backup.sh - | gzip -d > initdb.d/dump.sql
-cp -r /opt/docker/www-wp/uploads .
-```
-Grab the docker files:
-
-```bash
-wget -O compose.yaml https://raw.githubusercontent.com/NRFC/web/refs/heads/main/docker/production/compose.production.yaml
-wget -O .env https://raw.githubusercontent.com/NRFC/web/refs/heads/main/.env.example
-# edit the env file as needed, for staging you'll need to change the WORDPRESS_PORT
-# generate the WordPress keys/salts (keep them stable between deploys)
-wget -O - https://raw.githubusercontent.com/NRFC/web/refs/heads/main/bin/generate-wp-keys.sh | bash >> .env
-# uploads must be writable by www-data inside the container
-sudo chown -R 33:33 uploads
+./bin/deploy.sh \
+    -e ENV_FILE         # the env file that has passwords for the source DB\
+    -d SRC_DB_CONTAINER \
+    -u UPLOADS_SRC_PATH \
+    -t TARGET_PATH \
+    -s TARGET_STAGE 
 docker compose up
 ```
 

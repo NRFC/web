@@ -1,8 +1,8 @@
-# Production Docker Compose configuration
-# Usage: docker compose -f compose.production.yaml up -d
+# Staging Docker Compose configuration
+# Usage: docker compose -f compose.staging.yaml up -d
 #
-# - nrfc-wp-prod-web: WordPress on Apache with all code baked in (docker/production/Dockerfile)
-# - nrfc-wp-prod-db:  MariaDB
+# - nrfc-wp-staging-web: WordPress on Apache with all code baked in (docker/production/Dockerfile)
+# - nrfc-wp-staging-db:  MariaDB
 # - ./uploads is mounted into the web container and must be writable by www-data (UID 33)
 #
 # WordPress keys/salts are required. Generate them with ./bin/generate-wp-keys.sh >> .env
@@ -18,32 +18,33 @@ x-wp-keys: &wp-keys
   WORDPRESS_NONCE_SALT: ${WORDPRESS_NONCE_SALT:?WORDPRESS_NONCE_SALT is required}
 
 services:
-  nrfc-wp-prod-web:
+  nrfc-wp-staging-web:
     image: ghcr.io/nrfc/wp-prod:${WORDPRESS_IMAGE_TAG:-latest}
-    container_name: nrfc-wp-prod-web
+    container_name: nrfc-wp-staging-web
     ports:
       - "${WORDPRESS_PORT:-8015}:80"
     volumes:
       - ./uploads:/var/www/nrfc/wp-content/uploads:rw
     environment:
       <<: *wp-keys
-      WORDPRESS_DB_HOST: nrfc-wp-prod-db
+      WORDPRESS_DB_HOST: nrfc-wp-staging-db
       WORDPRESS_DB_USER: ${WORDPRESS_DB_USER:-wordpress}
       WORDPRESS_DB_PASSWORD: ${WORDPRESS_DB_PASSWORD:?WORDPRESS_DB_PASSWORD is required}
       WORDPRESS_DB_NAME: ${WORDPRESS_DB_NAME:-wordpress}
       WORDPRESS_CONFIG_EXTRA: ${WORDPRESS_CONFIG_EXTRA:-}
+      NEW_BASE_URL: https://staging.norwichrugby.com
       NRFC_REQUIRE_KEYS: "true"
       TZ: UTC
     depends_on:
-      nrfc-wp-prod-db:
+      nrfc-wp-staging-db:
         condition: service_healthy
     restart: unless-stopped
     networks:
       - nrfc-network
 
-  nrfc-wp-prod-db:
+  nrfc-wp-staging-db:
     image: mariadb:11
-    container_name: nrfc-wp-prod-db
+    container_name: nrfc-wp-staging-db
     volumes:
       - ./initdb.d:/docker-entrypoint-initdb.d:ro
       - db-data:/var/lib/mysql

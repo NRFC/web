@@ -29,4 +29,8 @@ if [ "${#missing[@]}" -gt 0 ]; then
 	echo >&2 "warning: missing WordPress keys/salts (${missing[*]}); random values will be used and sessions will not survive a redeploy"
 fi
 
+if [ "${NEW_BASE_URL}" != 'false' ]; then
+  /usr/local/bin/wp search-replace "${EXISTING_BASE_URL}" "${NEW_BASE_URL}"
+fi
+
 exec docker-entrypoint.sh "$@"

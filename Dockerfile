@@ -65,6 +65,9 @@ RUN groupadd -g 1001 www-user && \
     chown -R www-user:www-user /var/www/html && \
     sed -i '/DocumentRoot.*APACHE_DOCUMENT_ROOT}/a\\n\t# Allow .htaccess overrides in document root\n\t<Directory \"\${APACHE_DOCUMENT_ROOT}\">\n\t\tOptions Indexes FollowSymLinks\n\t\tAllowOverride All\n\t\tRequire all granted\n\t</Directory>' /etc/apache2/sites-available/000-default.conf
 
+RUN curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar \
+    && chmod +x wp-cli.phar \
+    && mv wp-cli.phar /usr/local/bin/wp
 
 USER www-user
 

@@ -31,6 +31,8 @@ FROM wordpress:7.1.2-php8.4-apache
 # (/var/www/html). Code baked into the image is therefore always what runs,
 # rather than a stale copy left behind in an old anonymous volume.
 ENV APACHE_DOCUMENT_ROOT=/var/www/nrfc
+ENV EXISTING_BASE_URL=https://www.norwichrugby.com
+ENV NEW_BASE_URL=false
 WORKDIR /var/www/nrfc
 
 RUN set -eux; \
@@ -56,6 +58,7 @@ if (!defined('WP_ENVIRONMENT_TYPE')) { define('WP_ENVIRONMENT_TYPE', getenv_dock
 COPY wordpress/wp-content/mu-plugins/ /var/www/nrfc/wp-content/mu-plugins/
 COPY --from=plugins /build/ /var/www/nrfc/wp-content/plugins/
 COPY wordpress/wp-content/themes/ /var/www/nrfc/wp-content/themes/
+COPY --chmod=0755 wp /var/www/nrfc/wp
 
 # Code is root-owned and read-only to Apache. Only the docroot (for the
 # generated wp-config.php) and uploads are owned by www-data.
