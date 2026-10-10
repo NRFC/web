@@ -79,7 +79,7 @@ docker exec -t "${SRC_DB_CONTAINER}" mariadb-dump -u${WORDPRESS_DB_USER} -p${WOR
 sudo rsync -a "${UPLOADS_SRC_PATH}" "${TARGET_PATH}/uploads"
 
 wget --quiet -O "${TARGET_PATH}/compose.yaml" "https://raw.githubusercontent.com/NRFC/web/refs/heads/main/docker/production/compose.${TARGET_STAGE}.yaml"
-wget --quite -O "${TARGET_PATH}/.env"  "https://raw.githubusercontent.com/NRFC/web/refs/heads/main/.env.sample"
+wget --quiet -O "${TARGET_PATH}/.env"  "https://raw.githubusercontent.com/NRFC/web/refs/heads/main/.env.example"
 echo -e "\n" >> "${TARGET_PATH}/.env"
 wget --quiet -O - https://raw.githubusercontent.com/NRFC/web/refs/heads/main/bin/generate-wp-keys.sh | bash >> "${TARGET_PATH}/.env"
 # uploads must be writable by www-data inside the container

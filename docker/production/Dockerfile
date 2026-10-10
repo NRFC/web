@@ -58,7 +58,12 @@ if (!defined('WP_ENVIRONMENT_TYPE')) { define('WP_ENVIRONMENT_TYPE', getenv_dock
 COPY wordpress/wp-content/mu-plugins/ /var/www/nrfc/wp-content/mu-plugins/
 COPY --from=plugins /build/ /var/www/nrfc/wp-content/plugins/
 COPY wordpress/wp-content/themes/ /var/www/nrfc/wp-content/themes/
-COPY --chmod=0755 wp /var/www/nrfc/wp
+
+RUN curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar \
+    && chmod +x wp-cli.phar \
+    && mv wp-cli.phar /usr/local/bin/wp
+
+COPY docker/production/wp-config.docker.php /var/www/nrfc/wp-config.php
 
 # Code is root-owned and read-only to Apache. Only the docroot (for the
 # generated wp-config.php) and uploads are owned by www-data.
@@ -66,7 +71,7 @@ RUN set -eux; \
     chown -R root:root /var/www/nrfc; \
     chmod -R u=rwX,go=rX /var/www/nrfc; \
     mkdir -p /var/www/nrfc/wp-content/uploads; \
-    chown www-data:www-data /var/www/nrfc /var/www/nrfc/wp-content/uploads
+    chown www-data:www-data /var/www/nrfc /var/www/nrfc/wp-content/uploads /var/www/nrfc/wp-config.php
 
 VOLUME /var/www/nrfc/wp-content/uploads
 
@@ -79,4 +84,5 @@ CMD ["apache2-foreground"]
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
     CMD curl -fsS -o /dev/null http://127.0.0.1/wp-includes/version.php || exit 1
 
+USER www-data
 EXPOSE 80

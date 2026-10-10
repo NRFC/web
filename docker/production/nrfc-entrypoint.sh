@@ -30,7 +30,20 @@ if [ "${#missing[@]}" -gt 0 ]; then
 fi
 
 if [ "${NEW_BASE_URL}" != 'false' ]; then
-  /usr/local/bin/wp search-replace "${EXISTING_BASE_URL}" "${NEW_BASE_URL}"
+  echo "Updating domain from ${EXISTING_BASE_URL} to ${NEW_BASE_URL}"
+  /usr/local/bin/wp search-replace "${EXISTING_BASE_URL}" "${NEW_BASE_URL}" --precise
+  /usr/local/bin/wp search-replace "https://dev.norwichrugby.com" "${NEW_BASE_URL}" --precise
+  /usr/local/bin/wp search-replace "http://dev.norwichrugby.com" "${NEW_BASE_URL}" --precise
+
+  if ! grep -q "WP_HOME" wp-config.php; then
+    echo "define( 'WP_HOME', '${NEW_BASE_URL}' );" >> wp-config.php
+  fi
+
+  if ! grep -q "WP_SITEURL" wp-config.php; then
+    echo "define( 'WP_SITEURL', '${NEW_BASE_URL}' );" >> wp-config.php
+  fi
 fi
 
+wp cache flush
+wp rewrite flush
 exec docker-entrypoint.sh "$@"

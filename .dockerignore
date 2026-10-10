@@ -6,7 +6,6 @@ coverage
 docs
 bin
 initdb.d
-wp
 wordpress/wp-content/uploads/
 wp-content/uploads/
 
