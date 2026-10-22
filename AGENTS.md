@@ -167,16 +167,7 @@ Purpose: Anti-spam protection
 
 ### Syncing to Live Environment
 
-The project includes sample rsync commands for pushing changes back to production:
-
-```bash
-# Sync plugins
-rsync -a --progress --exclude=akismet --exclude=siteorigin-panels --exclude=so-* \
-  wordpress/wp-content/plugins nrfc:/opt/docker/www-wp
-
-# Sync custom theme
-rsync -a --progress wordpress/wp-content/themes/nrfc nrfc:/opt/docker/www-wp/themes
-```
+The project syncs to the live enviroment using a CI chain
 
 ---
 

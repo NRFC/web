@@ -16,10 +16,7 @@ Mirror down the repo and start the dev docker containers. The dev container will
 
 ## Syncing up (for now)
 
-```shell
-rsync -a --progress --exclude=akismet --exclude=siteorigin-panels --exclude=so-* wordpress/wp-content/plugins nrfc:/opt/docker/www-wp
-rsync -a --progress wordpress/wp-content/themes/nrfc nrfc:/opt/docker/www-wp/themes
-```
+TBC - It's a docker build/push/pull. I'll write the CI soon
 
 ## Notes
 
