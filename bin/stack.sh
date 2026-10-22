@@ -73,13 +73,13 @@ start_environment() {
 
     print_status "Grabbing SQL from live environment..."
     mkdir -p "$PROJECT_ROOT/initdb.d"
-    ssh dev.norwichrugby.com /opt/docker/www-wp/backup.sh - | gzip -d > "$PROJECT_ROOT/initdb.d/dump.sql" || {
+    ssh dev.norwichrugby.com /opt/docker/backup.sh -o - | gzip -d > "$PROJECT_ROOT/initdb.d/dump.sql" || {
         print_error "Failed to get SQL dump from live environment. Check you have ssh key access."
         return 1
     }
 
     print_status "Grabbing media from live environment..."
-    rsync -a --progress dev.norwichrugby.com:/opt/docker/www-wp/uploads "$PROJECT_ROOT/wordpress/wp-content/" || {
+    rsync -a --progress dev.norwichrugby.com:/opt/docker/prod/uploads "$PROJECT_ROOT/wordpress/wp-content/" || {
         print_error "Failed to get media from live environment. Check you have ssh key access."
         return 1
     }

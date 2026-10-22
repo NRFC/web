@@ -31,7 +31,7 @@ You can stage the site anywhere. We have a helper script, it assumes you have sh
 
 ```bash
 ./bin/deploy.sh \
-    -e ENV_FILE         # the env file that has passwords for the source DB\
+    -e ENV_FILE \
     -d SRC_DB_CONTAINER \
     -u UPLOADS_SRC_PATH \
     -t TARGET_PATH \
@@ -46,8 +46,6 @@ containing WordPress core, the themes, plugins (with production Composer autoloa
 production PHP/Apache config. Code is served from `/var/www/nrfc` and is read-only to Apache.
 
 ```bash
-docker build -f docker/production/Dockerfile -t ghcr.io/nrfc/wp-prod .
-
 docker run -d -p 8015:80 \
   -e WORDPRESS_DB_HOST=db.example:3306 \
   -e WORDPRESS_DB_USER=wordpress \
