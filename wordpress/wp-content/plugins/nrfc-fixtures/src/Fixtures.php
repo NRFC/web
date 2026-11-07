@@ -356,6 +356,10 @@ class Fixtures {
 		$notes         = $fixture_id ? get_post_meta( $fixture_id, self::META_NOTES, true ) : '';
 		$teams         = $this->get_accessible_fixture_teams();
 
+		if ( ! is_admin() ) {
+			$this->enqueue_frontend_form_styles();
+		}
+
 		get_header();
 		?>
 		<main class="nrfc-fixture-form wrap">
@@ -1928,6 +1932,18 @@ class Fixtures {
 		wp_enqueue_style(
 			'nrfc-fixtures-block-styles',
 			plugin_dir_url( __DIR__ ) . 'assets/fixtures-block.css',
+			array(),
+			'1.0.0'
+		);
+	}
+
+	/**
+	 * Enqueue front-end edit form styles
+	 */
+	public function enqueue_frontend_form_styles(): void {
+		wp_enqueue_style(
+			'nrfc-fixtures-fe-edit-styles',
+			plugin_dir_url( __DIR__ ) . 'assets/fixtures-fe-edit.css',
 			array(),
 			'1.0.0'
 		);
