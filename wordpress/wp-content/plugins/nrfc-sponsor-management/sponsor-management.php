@@ -16,6 +16,11 @@ if ( file_exists( __DIR__ . '/vendor/autoload.php' ) ) {
 	require_once __DIR__ . '/vendor/autoload.php';
 }
 
+// Fallback: load the main class directly if Composer autoload isn't present
+if ( ! class_exists( 'SponsorManagement\\SponsorManagement' ) ) {
+	require_once __DIR__ . '/src/SponsorManagement.php';
+}
+
 // Bootstrap the plugin
 use SponsorManagement\SponsorManagement;
 
