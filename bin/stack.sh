@@ -94,11 +94,13 @@ start_environment() {
     print_status "Waiting for database to be ready..."
     sleep 15
 
-    [[ -f "$PROJECT_ROOT/wordpress/wp-config.php" ]] || cp "$PROJECT_ROOT/wordpress/wp-config.php.dist" "$PROJECT_ROOT/wordpress/wp-config.php" || {
+    print_status "Install site wp-config.php..."
+    [[ -f "$PROJECT_ROOT/wordpress/wp-config.php" ]] || cp "$PROJECT_ROOT/wordpress/wp-config.dist.php" "$PROJECT_ROOT/wordpress/wp-config.php" || {
         print_error "Failed to copy in default wp-config.php"
         return 1
     }
 
+    print_status "Install site htaccess..."
     [[ -f "$PROJECT_ROOT/wordpress/.htaccess" ]] || cp "$PROJECT_ROOT/wordpress/htaccess.dist" "$PROJECT_ROOT/wordpress/.htaccess" || {
         print_error "Failed to copy in default .htaccess"
         return 1
