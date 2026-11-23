@@ -1,1 +1,125 @@
 /* fixtures-fe-edit.css */
+.nrfc-fixture-form form {
+    width: 100%;
+    max-width: 1100px;
+    margin: 40px auto;
+    padding: 35px;
+    background: #ffffff;
+    border-radius: 20px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.08);
+    box-sizing: border-box;
+}
+
+
+.nrfc-fixture-form h2,
+.nrfc-fixture-form h3 {
+    color: #17243a;
+    font-weight: 700;
+    margin-bottom: 25px;
+    border-bottom: 3px solid #e58a00;
+    padding-bottom: 12px;
+}
+
+.nrfc-fixture-form form label {
+    font-weight: 600;
+    color: #263449;
+    font-size: 14px;
+}
+
+.nrfc-fixture-form .form-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 12px;
+    margin-top: 10px;
+}
+
+.nrfc-fixture-form .form-table th {
+    width: 180px;
+    padding: 12px 20px 12px 25px !important;
+    text-align: left;
+    vertical-align: top;
+}
+
+.nrfc-fixture-form .form-table td {
+    padding: 12px 15px;
+    vertical-align: top;
+}
+
+.nrfc-fixture-form form input[type="text"],
+.nrfc-fixture-form form input[type="date"],
+.nrfc-fixture-form form input[type="time"],
+.nrfc-fixture-form form input[type="number"],
+.nrfc-fixture-form form select,
+.nrfc-fixture-form form textarea {
+    width: 100%;
+    max-width: 600px;
+    padding: 12px 14px;
+    border: 1px solid #d1d8e0;
+    border-radius: 8px;
+    background: #f8fafc;
+    color: #1e293b;
+    font-size: 15px;
+    transition: 0.2s ease;
+    box-sizing: border-box;
+}
+
+.nrfc-fixture-form form textarea {
+    min-height: 150px;
+    resize: vertical;
+}
+
+.nrfc-fixture-form .description {
+    color: #64748b;
+    font-size: 13px;
+    margin-top: 8px;
+}
+
+.nrfc-fixture-form form button,
+.nrfc-fixture-form form input[type="submit"] {
+    background: #e58a00;
+    color: #ffffff;
+    border: none;
+    padding: 14px 28px;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 15px;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.nrfc-fixture-form form button:hover,
+.nrfc-fixture-form form input[type="submit"]:hover {
+    background: #c87400;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(229, 138, 0, 0.25);
+}
+
+@media (max-width: 768px) {
+    .nrfc-fixture-form form {
+        margin: 15px auto;
+        padding: 20px;
+    }
+
+    .nrfc-fixture-form .form-table,
+    .nrfc-fixture-form .form-table tbody,
+    .nrfc-fixture-form .form-table tr,
+    .nrfc-fixture-form .form-table th,
+    .nrfc-fixture-form .form-table td {
+        display: block;
+        width: 100%;
+    }
+
+    .nrfc-fixture-form .form-table th {
+        padding: 10px 0 5px !important;
+    }
+
+    .nrfc-fixture-form .form-table td {
+        padding: 5px 0 15px;
+    }
+
+    .nrfc-fixture-form form input,
+    .nrfc-fixture-form form select,
+    .nrfc-fixture-form form textarea {
+        max-width: 100%;
+    }
+}
